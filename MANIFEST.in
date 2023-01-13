@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include cycle_world *.css
+recursive-include cycle_world *.csv
+recursive-include cycle_world *.html
+recursive-include cycle_world *.ico
+recursive-include cycle_world *.js
+recursive-include cycle_world *.json
+recursive-include cycle_world *.md
+recursive-include cycle_world *.png
+recursive-include cycle_world *.py
+recursive-include cycle_world *.svg
+recursive-include cycle_world *.txt
+recursive-exclude cycle_world *.pyc
