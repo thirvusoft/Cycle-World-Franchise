@@ -1,12 +1,55 @@
 import frappe
-from erpnext.controllers.item_variant import copy_attributes_to_variant
+from erpnext.controllers.item_variant import (
+	copy_attributes_to_variant, 
+	generate_keyed_value_combinations,
+	get_variant
+	)
 from six import string_types
 import json
 from frappe.utils import cstr, flt
 
 
+
+@frappe.whitelist()
+def enqueue_multiple_variant_creation(item, args):
+	# There can be innumerable attribute combinations, enqueue
+	if isinstance(args, string_types):
+		variants = json.loads(args)
+	total_variants = 1
+	for key in variants:
+		total_variants *= len(variants[key])
+	if total_variants >= 600:
+		frappe.throw(_("Please do not create more than 500 items at a time"))
+		return
+	if total_variants < 10:
+		return create_multiple_variants(item, args)
+	else:
+		frappe.enqueue(
+			"erpnext.controllers.item_variant.create_multiple_variants",
+			item=item,
+			args=args,
+			now=frappe.flags.in_test,
+		)
+		return "queued"
+
+def create_multiple_variants(item, args):
+	count = 0
+	if isinstance(args, string_types):
+		args = json.loads(args)
+
+	args_set = generate_keyed_value_combinations(args)
+
+	for attribute_values in args_set:
+		if not get_variant(item, args=attribute_values):
+			variant = create_variant(item, attribute_values)
+			variant.save()
+			count += 1
+
+	return count
+
 @frappe.whitelist()
 def create_variant(item, args):
+	frappe.errprint('ll')
 	if isinstance(args, string_types):
 		args = json.loads(args)
 
@@ -33,7 +76,7 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 	abbreviations, abbr_for_item_name = [], []
 	for attr in variant.attributes:
 		item_attribute = frappe.db.sql(
-			"""select i.numeric_values, v.abbr, v.attribute_value
+			"""select i.numeric_values, v.abbr, v.attribute_value, i.show_only_abbreviation_in_item_name
 			from `tabItem Attribute` i left join `tabItem Attribute Value` v
 				on (i.name=v.parent)
 			where i.name=%(attribute)s and (v.attribute_value=%(attribute_value)s or i.numeric_values = 1)""",
@@ -53,8 +96,9 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 		abbreviations.append(abbr_or_value)
 
 		abbr_or_value_item_name = (
-			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value
+			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value if not item_attribute[0].show_only_abbreviation_in_item_name else item_attribute[0].abbr
 		)
+		frappe.errprint(abbr_or_value_item_name)
 		abbr_for_item_name.append(abbr_or_value_item_name)
 	abbreviations.insert(1, brand[:3:])
 	abbr_for_item_name.insert(1, brand[:3:])

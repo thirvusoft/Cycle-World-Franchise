@@ -95,13 +95,11 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
-# }
+doc_events = {
+	"Sales Invoice": {
+		"validate": "cycle_world.cycle_world.custom.py.sales_invoice.validate",
+	}
+}
 
 # Scheduled Tasks
 # ---------------
@@ -133,7 +131,7 @@ app_license = "MIT"
 # ------------------------------
 #
 override_whitelisted_methods = {
-	"erpnext.controllers.item_variant.create_variant": "cycle_world.cycle_world.custom.py.item_variant.create_variant"
+	"erpnext.controllers.item_variant.enqueue_multiple_variant_creation": "cycle_world.cycle_world.custom.py.item_variant.enqueue_multiple_variant_creation"
 }
 #
 # each overriding function accepts a `data` argument;

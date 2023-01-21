@@ -1,5 +1,6 @@
 import frappe
 from frappe.model.rename_doc import update_document_title
+from frappe.utils import cstr, flt
 
 def get_all_template():
 	temp = frappe.db.get_all('Item', filters={'has_variants':1}, pluck='name')
@@ -55,6 +56,8 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 
 
 def set_item_tax_rate():
+	for i in frappe.get_all('Item Tax', pluck='name', filters={'parenttype':'Item'}):
+		frappe.delete_doc('Item Tax', i)
 	temp = frappe.db.get_all('Item', filters={'has_variants':1}, pluck='name')
 	for i in temp:
 		pp = frappe.get_doc({
