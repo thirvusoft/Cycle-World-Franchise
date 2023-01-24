@@ -6,6 +6,7 @@ from erpnext.controllers.item_variant import (
 	)
 from six import string_types
 import json
+from frappe import _
 from frappe.utils import cstr, flt
 
 
@@ -15,6 +16,13 @@ def enqueue_multiple_variant_creation(item, args):
 	# There can be innumerable attribute combinations, enqueue
 	if isinstance(args, string_types):
 		variants = json.loads(args)
+		args = json.loads(args)
+	for i in list(variants.keys()):
+		if(len(variants[i]) == 0):
+			del variants[i]
+	for i in list(args.keys()):
+		if(len(args[i]) == 0):
+			del args[i]
 	total_variants = 1
 	for key in variants:
 		total_variants *= len(variants[key])
@@ -38,7 +46,6 @@ def create_multiple_variants(item, args):
 		args = json.loads(args)
 
 	args_set = generate_keyed_value_combinations(args)
-
 	for attribute_values in args_set:
 		if not get_variant(item, args=attribute_values):
 			variant = create_variant(item, attribute_values)
@@ -49,7 +56,6 @@ def create_multiple_variants(item, args):
 
 @frappe.whitelist()
 def create_variant(item, args):
-	frappe.errprint('ll')
 	if isinstance(args, string_types):
 		args = json.loads(args)
 
@@ -98,11 +104,9 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 		abbr_or_value_item_name = (
 			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value if not item_attribute[0].show_only_abbreviation_in_item_name else item_attribute[0].abbr
 		)
-		frappe.errprint(abbr_or_value_item_name)
 		abbr_for_item_name.append(abbr_or_value_item_name)
-	abbreviations.insert(1, brand[:3:])
-	abbr_for_item_name.insert(1, brand[:3:])
+	# abbreviations.insert(1, brand[:3:])
+	# abbr_for_item_name.insert(1, brand)
 	if abbreviations:
-		variant.item_code = "{0}".format("".join(abbreviations))
-		variant.item_name = "{0}".format(" ".join(abbr_for_item_name))
-
+		variant.item_code = "{0}{1}".format(template_item_code.replace(" ",'')[:3:], "".join(abbreviations))
+		variant.item_name = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))

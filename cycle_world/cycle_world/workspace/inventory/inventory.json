@@ -13,7 +13,7 @@
  "is_standard": 1,
  "label": "Inventory",
  "links": [],
- "modified": "2023-01-19 10:43:48.824287",
+ "modified": "2023-01-24 12:00:36.527987",
  "modified_by": "Administrator",
  "module": "Cycle World",
  "name": "Inventory",
@@ -23,14 +23,8 @@
  "shortcuts": [
   {
    "doc_view": "",
-   "label": "Item",
-   "link_to": "Item",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "",
-   "label": "Item Attribute",
-   "link_to": "Item Attribute",
+   "label": "Brand",
+   "link_to": "Brand",
    "type": "DocType"
   },
   {
@@ -40,21 +34,39 @@
    "type": "DocType"
   },
   {
+   "doc_view": "",
+   "label": "Item Attribute",
+   "link_to": "Item Attribute",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Item",
+   "link_to": "Item",
+   "type": "DocType"
+  },
+  {
    "doc_view": "Tree",
    "label": "Warehouse",
    "link_to": "Warehouse",
    "type": "DocType"
   },
   {
-   "doc_view": "",
-   "label": "Brand",
-   "link_to": "Brand",
+   "doc_view": "List",
+   "label": "Stock Reconciliation",
+   "link_to": "Stock Reconciliation",
    "type": "DocType"
   },
   {
    "doc_view": "List",
-   "label": "Stock Reconciliation",
-   "link_to": "Stock Reconciliation",
+   "label": "Price List",
+   "link_to": "Price List",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Item Price",
+   "link_to": "Item Price",
    "type": "DocType"
   }
  ]

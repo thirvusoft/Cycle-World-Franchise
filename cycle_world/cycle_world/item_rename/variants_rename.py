@@ -21,7 +21,7 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 	abbreviations, abbr_for_item_name = [], []
 	for attr in variant.attributes:
 		item_attribute = frappe.db.sql(
-			"""select i.numeric_values, v.abbr, v.attribute_value
+			"""select i.numeric_values, v.abbr, v.attribute_value, i.show_only_abbreviation_in_item_name
 			from `tabItem Attribute` i left join `tabItem Attribute Value` v
 				on (i.name=v.parent)
 			where i.name=%(attribute)s and (v.attribute_value=%(attribute_value)s or i.numeric_values = 1)""",
@@ -41,18 +41,19 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 		abbreviations.append(abbr_or_value)
 
 		abbr_or_value_item_name = (
-			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value
+			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value if not item_attribute[0].show_only_abbreviation_in_item_name else item_attribute[0].abbr
 		)
 		abbr_for_item_name.append(abbr_or_value_item_name)
-	abbreviations.insert(1, brand.replace(' ', '')[:3:])
-	abbr_for_item_name.insert(1, brand.replace(' ', '')[:3:])
+	# abbreviations.insert(1, brand.replace(' ', '')[:3:])
+	# abbr_for_item_name.insert(1, brand.replace(' ', '')[:3:])
 	# if abbreviations:
 	# 	variant.item_code = "{0}".format("".join(abbreviations))
 	# 	variant.item_name = "{0}".format(" ".join(abbr_for_item_name))
-	new_ic = "".join(abbreviations)
-	new_in = " ".join(abbr_for_item_name)
+	new_ic = "{0}{1}".format(template_item_code.replace(" ",'')[:3:], "".join(abbreviations))
+	new_in = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
+	print('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic, variant.variant_of)
 	update_document_title('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic)
-	print('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic)
+	
 
 
 def set_item_tax_rate():

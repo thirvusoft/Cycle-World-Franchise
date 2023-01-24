@@ -4,8 +4,6 @@ from cycle_world.cycle_world.custom.py.print_format import qrcode_as_png
 def validate(doc, event):
     set_qr_image(doc)
     itemised_tax, itemised_taxable_amount = get_itemised_tax_breakup_data(doc)
-    frappe.errprint(itemised_tax)
-    frappe.errprint(itemised_taxable_amount)
     descriptions = []
     final_taxes = {}
     for i in itemised_tax:
@@ -18,8 +16,6 @@ def validate(doc, event):
         descriptions+=taxes
         final_taxes = add_to_tax_list(final_taxes, tax_list, itemised_tax[i])
     descriptions = list(set(descriptions))
-    frappe.errprint(descriptions)
-    frappe.errprint(final_taxes)
     doc.update({
         'tax_table_print_format':list(final_taxes.values())
     })
