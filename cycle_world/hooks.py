@@ -98,6 +98,12 @@ doctype_js = {"Item" : "cycle_world/custom/js/item.js"}
 doc_events = {
 	"Sales Invoice": {
 		"validate": "cycle_world.cycle_world.custom.py.sales_invoice.validate",
+	},
+	"User":{
+		'validate': 'cycle_world.cycle_world.user_permissions.user.validate'
+	},
+	"Branch":{
+		'validate':'cycle_world.cycle_world.user_permissions.branch.validate'
 	}
 }
 
