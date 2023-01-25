@@ -104,6 +104,9 @@ doc_events = {
 	},
 	"Branch":{
 		'validate':'cycle_world.cycle_world.user_permissions.branch.validate'
+	},
+	"Item":{
+		'validate':'cycle_world.cycle_world.custom.item.validate'
 	}
 }
 
