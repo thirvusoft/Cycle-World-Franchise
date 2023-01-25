@@ -13,7 +13,7 @@
  "is_standard": 1,
  "label": "Billing",
  "links": [],
- "modified": "2023-01-19 14:14:31.932411",
+ "modified": "2023-01-25 14:49:27.165393",
  "modified_by": "Administrator",
  "module": "Cycle World",
  "name": "Billing",
@@ -26,6 +26,24 @@
    "label": "Thirvu Retail",
    "link_to": "posapp",
    "type": "Page"
+  },
+  {
+   "doc_view": "List",
+   "label": "POS Profile",
+   "link_to": "POS Profile",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "POS Opening Shift",
+   "link_to": "POS Opening Shift",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "POS Closing Shift",
+   "link_to": "POS Closing Shift",
+   "type": "DocType"
   }
  ]
 }
