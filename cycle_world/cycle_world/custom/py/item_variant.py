@@ -33,7 +33,7 @@ def enqueue_multiple_variant_creation(item, args):
 		return create_multiple_variants(item, args)
 	else:
 		frappe.enqueue(
-			"erpnext.controllers.item_variant.create_multiple_variants",
+			create_multiple_variants,
 			item=item,
 			args=args,
 			now=frappe.flags.in_test,
@@ -46,10 +46,14 @@ def create_multiple_variants(item, args):
 		args = json.loads(args)
 
 	args_set = generate_keyed_value_combinations(args)
+
 	for attribute_values in args_set:
 		if not get_variant(item, args=attribute_values):
 			variant = create_variant(item, attribute_values)
+			variant.dont_save = True
 			variant.save()
+			variant.dont_save = False
+			variant.run_method('validate')
 			count += 1
 
 	return count
