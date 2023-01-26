@@ -33,7 +33,7 @@ def add_price(self, field=None, price_list=None):
 		ip = frappe.get_value('Item Price', {'price_list':price_list, 'item_code':self.name})
 		if(ip):
 			frappe.delete_doc_if_exists('Item Price', ip, force=1)
-		if(not self.get(field)):return
+		if(not self.get(field) or self.get('has_variants')):return
 		item_price = frappe.get_doc(
 			{
 				"doctype": "Item Price",
