@@ -1378,14 +1378,14 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2023-01-25 19:24:16.056491",
+   "creation": "2023-01-26 15:43:03.715524",
    "default_value": null,
    "doc_type": "Item",
    "docstatus": 0,
    "doctype_or_field": "DocField",
    "field_name": "item_group",
    "idx": 0,
-   "modified": "2023-01-25 19:24:16.056491",
+   "modified": "2023-01-26 15:43:03.715524",
    "modified_by": "Administrator",
    "name": "Item-item_group-default",
    "owner": "Administrator",
@@ -1395,7 +1395,7 @@
    "property": "default",
    "property_type": "Text",
    "row_name": null,
-   "value": "Bicycles"
+   "value": ""
   },
   {
    "_assign": null,
