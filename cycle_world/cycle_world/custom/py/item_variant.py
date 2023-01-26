@@ -44,17 +44,13 @@ def create_multiple_variants(item, args):
 	count = 0
 	if isinstance(args, string_types):
 		args = json.loads(args)
-	frappe.errprint(args)
 	item_group = None
 	item_group_attribute = frappe.db.get_value('Item Attribute', {'is_item_group':1}, 'name')
 	if(args.get(item_group_attribute)):
 		if(len(args[item_group_attribute])):
 			item_group = args[item_group_attribute][0]
 		del args[item_group_attribute]
-	frappe.errprint(item_group)
-	frappe.errprint('item_group')
 	args_set = generate_keyed_value_combinations(args)
-	frappe.errprint(args_set)
 	for attribute_values in args_set:
 		if not get_variant(item, args=attribute_values):
 			variant = create_variant(item, attribute_values, item_group)
@@ -91,7 +87,6 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 	"""Uses template's item code and abbreviations to make variant's item code"""
 	if variant.item_code:
 		return
-	frappe.errprint(variant.item_group)
 	abbreviations, abbr_for_item_name = [], []
 	for attr in variant.attributes:
 		item_attribute = frappe.db.sql(
