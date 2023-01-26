@@ -87,9 +87,9 @@ doctype_js = {"Item" : "cycle_world/custom/js/item.js"}
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-#	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Item": "cycle_world.cycle_world.custom.py.item.CycleWorldItem"
+}
 
 # Document Events
 # ---------------
@@ -106,8 +106,8 @@ doc_events = {
 		'validate':'cycle_world.cycle_world.user_permissions.branch.validate'
 	},
 	"Item":{
-		'validate':'cycle_world.cycle_world.custom.item.validate'
-	}
+		'validate':'cycle_world.cycle_world.custom.py.item.validate'
+	},
 }
 
 # Scheduled Tasks
