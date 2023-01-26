@@ -5,6 +5,7 @@ from frappe import _
 
 
 def validate(doc, event=None):
+	if(doc.get('dont_save')):return
 	doc.additional_cost = (doc.get('transportation_cost') or 0) + (doc.get('shipping_cost') or 0) + (doc.get('other_costs') or 0)
 	doc.standard_rate = (doc.get('standard_buying_cost') or 0) + (
 						doc.get('additional_cost') or 0)
@@ -12,7 +13,7 @@ def validate(doc, event=None):
 	doc.standard_rate = doc.get('standard_rate') - doc.get('standard_rate')*(doc.get('ts_discount_') or 0)/100 
 	if((doc.get('mrp') or 0) < (doc.get('standard_rate') or 0)):
 		frappe.msgprint(f'Standard Selling rate({doc.get("standard_rate")}) is greater than MRP rate({doc.get("mrp")}).')
-	frappe.enqueue(insert_prices, doc=doc, queue='long')
+	insert_prices(doc)
 	
 def insert_prices(doc):
 	add_price(doc, 'standard_rate', 'Standard Selling')
@@ -44,4 +45,4 @@ def add_price(self, field=None, price_list=None):
 				"price_list_rate": self.get(field) or 0,
 			}
 		)
-		item_price.insert()
+		item_price.save()
