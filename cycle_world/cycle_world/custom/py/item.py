@@ -23,7 +23,23 @@ class CycleWorldItem(Item):
 						now=frappe.flags.in_test,
 						timeout=600,
 					)
-def validate(doc, event=None):
+def validate(doc, event):
+	
+	if not doc.barcodes:
+		doc.append('barcodes',
+					{
+						"barcode":doc.item_code
+					}
+	)
+	else:
+		for i in doc.barcodes:
+			if (i.barcode!=doc.item_code):
+				doc.append('barcodes',
+					{
+						"barcode":doc.item_code
+					}
+				)
+	
 	if(doc.variant_of):
 		set_variant_name_for_manual_creation(doc)
 	if(doc.get('dont_save')):return
