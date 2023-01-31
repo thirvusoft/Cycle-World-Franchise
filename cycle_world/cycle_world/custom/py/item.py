@@ -24,10 +24,8 @@ class CycleWorldItem(Item):
 						timeout=600,
 					)
 def validate(doc, event=None):
-	# item_group_attribute = frappe.db.get_value('Item Attribute', {'is_item_group':1}, 'name')
-	# for attr in doc.get('attributes') or []:
-	# 	if(attr.attribute == item_group_attribute):
-	# 		doc.item_group = attr.attribute_value
+	if(doc.variant_of):
+		set_variant_name_for_manual_creation(doc)
 	if(doc.get('dont_save')):return
 	doc.additional_cost = (doc.get('transportation_cost') or 0) + (doc.get('shipping_cost') or 0) + (doc.get('other_costs') or 0)
 	doc.standard_rate = (doc.get('standard_buying_cost') or 0) + (
@@ -69,3 +67,34 @@ def add_price(self, field=None, price_list=None):
 			}
 		)
 		item_price.save()
+
+
+@frappe.whitelist()
+def get_attributes(template=None):
+	return frappe.db.get_all('Item Variant Attribute', filters={'parent':template, 'parentfield':'attributes'}, pluck='attribute', order_by='idx')
+
+@frappe.whitelist()
+def get_link_options(doctype, txt, searchfield, start, page_len, filters):
+	# frappe.errprint(args)
+	doctype = 'Item Attribute Value'
+	name_field='attribute_value'
+	print(doctype, txt, searchfield, start, page_len, filters)
+	searchfields = ['name', 'attribute_value', 'abbr']
+	fields = ', '.join(searchfields)
+	scond = " or ".join(field + f" like '%{txt}%'" for field in searchfields)
+	scond = f'({scond})' + f' and parent ="{filters["attribute"]}"'
+	return frappe.db.sql(
+		f"""select {fields} from `tab{doctype}`
+		where 
+			{scond}
+		order by
+			idx
+		limit {start}, {page_len}"""
+	)
+
+
+def set_variant_name_for_manual_creation(doc):
+	from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
+	template_ic = doc.variant_of
+	make_variant_item_code(template_ic, template_ic, doc, True)
+

@@ -87,3 +87,52 @@ def set_item_tax_rate():
 		})
 		pp.insert()
 		cy.insert()
+
+def update_brand_in_item_attributes():
+	"""Update brand field in item attributes which name like 'Model' """
+	import re
+	model_attr = frappe.db.get_all('Item Attribute', filters={'name':['like', '%model%']}, pluck='name')
+	print(model_attr, len(model_attr))
+	s=f=0
+	flrs = []
+	for i in model_attr:
+		txt = re.split("model", i, flags=re.IGNORECASE)[0]
+		print(txt, 1111)
+		if(frappe.db.exists('Brand', {'name':txt})):
+			s+=1
+			frappe.db.set_value('Item Attribute', i, 'brand', txt)
+		else:
+			f+=1
+			flrs.append(i)
+			print('Unsuccessful Attribute: ', i)
+	print(f"Successfull: {s}\nUnsuccessfull: {f}")
+	print('Failures: ',flrs)
+
+def create_attributes_in_new_doctype():
+	doctype = 'CW Item Attribute'
+	it_at = frappe.db.get_all('Item Attribute', pluck='name')
+	tot_count = 0
+	invalid = []
+	for i in it_at:
+		val = frappe.db.get_all('Item Attribute Value', filters={'parent':i}, fields=['attribute_value', 'abbr'])
+		tot_count += len(val)
+		for j in val:
+			doc = frappe.get_doc({
+				'doctype':doctype,
+				'attribute_value':j['attribute_value'],
+				'abbr':j['abbr'],
+				'item_attribute':i,
+			})
+			# try:
+			doc.save()
+			# except:
+			# 	invalid.append(j['attribute_value'])
+	print(f'Total Doc Count: {tot_count}\nInvalid: {invalid}')
+
+def update_old_attribute_table_in_item():
+	var_attr = frappe.db.get_ll('Item Variant Attribute', filters={'parenttype':'Item'}, fields=['name', 'attribute', 'attribute_value'])
+	for i in var_attr:
+		doc = frappe.get_doc('Item Variant Attribute', i['name'])
+		doc.update({
+			
+		})
