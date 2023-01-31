@@ -83,10 +83,10 @@ def create_variant(item, args, item_group=None):
 
 	return variant
 
-def make_variant_item_code(template_item_code, template_item_name, variant, dont_set_name=False):
+def make_variant_item_code(template_item_code, template_item_name, variant):
 	"""Uses template's item code and abbreviations to make variant's item code"""
-	# if variant.item_code:
-	# 	return
+	if variant.item_code:
+		return
 	abbreviations, abbr_for_item_name = [], []
 	for attr in variant.attributes:
 		item_attribute = frappe.db.sql(
@@ -97,8 +97,7 @@ def make_variant_item_code(template_item_code, template_item_name, variant, dont
 			{"attribute": attr.attribute, "attribute_value": attr.attribute_value},
 			as_dict=True,
 		)
-		frappe.errprint(f"{attr.attribute}, {attr.attribute_value}")
-		frappe.errprint(item_attribute or 'item_attribute')
+
 		if not item_attribute:
 			continue
 			# frappe.throw(_('Invalid attribute {0} {1}').format(frappe.bold(attr.attribute),
@@ -117,7 +116,4 @@ def make_variant_item_code(template_item_code, template_item_name, variant, dont
 
 	if abbreviations:
 		variant.item_code = "{0}{1}".format(template_item_code.replace(" ",'')[:3:], "".join(abbreviations))
-		if(not dont_set_name):
-			variant.item_name = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
-	frappe.errprint(variant.item_code)
-	frappe.errprint(variant.item_name)
+		variant.item_name = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))

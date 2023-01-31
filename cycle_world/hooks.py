@@ -57,8 +57,7 @@ doctype_js = {"Item" : "cycle_world/custom/js/item.js"}
 # ------------
 
 # before_install = "cycle_world.install.before_install"
-after_install = "cycle_world.install.after_install"
-after_migrate = "cycle_world.install.after_install"
+# after_install = "cycle_world.install.after_install"
 
 # Uninstallation
 # ------------
@@ -109,9 +108,6 @@ doc_events = {
 	"Item":{
 		'validate':'cycle_world.cycle_world.custom.py.item.validate'
 	},
-	"Item Attribute":{
-		'validate':'cycle_world.cycle_world.custom.py.item_attribute.validate'
-	}
 }
 
 # Scheduled Tasks

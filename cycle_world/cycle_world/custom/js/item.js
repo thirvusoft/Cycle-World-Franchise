@@ -1,83 +1,8 @@
 frappe.ui.form.on('Item',{
-	setup(frm){
-		frm.set_query('variant_of', {
-			filters: {
-				'has_variants':1
-			}
-		});
-		var attr_html = frm.$wrapper.find('div[data-fieldname="attribute_html"]')[0]
-		attr_html.innerHTML = ''
-		if(frm.doc.variant_of){
-			var selected = {}
-			if(!frm.is_new()){
-				frm.doc.attributes.forEach((attr)=>{
-					selected[attr.attribute] = attr.attribute_value
-				})
-			}
-			var fields = []
-			var field_names = []
-			frappe.call({
-				method:'cycle_world.cycle_world.custom.py.item.get_attributes',
-				args:{
-					template:frm.doc.variant_of
-				},
-				callback(r){
-					attr_html.innerHTML = ''
-					var brk_count = Math.round(r.message.length / 4)
-					r.message.forEach((attr, i)=>{
-						if(i%brk_count==0){
-							fields.push({
-								fieldtype: 'Column Break',
-								fieldname:frappe.scrub(`Column Break ${i}`)
-							})
-						}
-						field_names.push(`cycle_${frappe.scrub(attr)}`)
-						fields.push({
-								fieldtype: 'Link',
-								label: __(attr),
-								options:'CW Item Attribute',
-								fieldname:`cycle_${frappe.scrub(attr)}`,
-								default:selected[attr],
-								filters:{'item_attribute':attr},
-								get_route_options_for_new_doc: function(field) {
-									return  {
-										'item_attribute' : attr,
-										'template':!frm.is_new()?frm.doc.name:''
-									}
-								},
-							})
-					})
-					var form = new frappe.ui.FieldGroup({
-						fields: fields,
-						body: attr_html
-					});
-
-					form.make()
-					let df = form.get_field('cycle_accessories')
-					form.fields.forEach(df => {
-						df.onchange =  function(){
-							set_attributes(frm, form, field_names)
-						}
-					})					
-				}
-			})
-			
-		}
-	},
-	refresh(frm){
-		frm.trigger('setup')
-	},
-	onload(frm){
-		frm.trigger('setup')
-	},
-	variant_of(frm){
-		frm.trigger('setup')	
-	},
     brand_name: function(frm){
-		// frm.set_value('item_code', frm.doc.brand_name)
-		// frm.set_value('item_name', frm.doc.brand_name)
+		frm.set_value('item_code', frm.doc.brand_name)
+		frm.set_value('item_name', frm.doc.brand_name)
 		frm.set_value('brand', frm.doc.brand_name)
-		frm.set_value('variant_of', frm.doc.brand_name)
 	},
 	standard_buying_cost(frm){
 		item_price(frm)
@@ -108,21 +33,4 @@ function item_price(frm){
 	frm.set_value('standard_rate', selling_cost)
 	frm.refresh_field('additional_cost')
 	frm.refresh_field('standard_rate')
-}
-function set_attributes(frm, form, field_names){
-	var attr_tab = [];
-	field_names.forEach((df)=>{
-		var field = form.get_field(df)
-		var value = form.get_value(df).split(' - ')[0]
-		if(value){
-			attr_tab.push({
-				'variant_of':frm.doc.variant_of,
-				'attribute_value':value,
-				'attribute':field.df.label
-			})
-		}
-	})
-	frm.set_value('attributes', attr_tab)
-	frm.refresh_field('attributes')
-	console.log(attr_tab)
 }
