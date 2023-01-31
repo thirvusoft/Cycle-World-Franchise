@@ -33,7 +33,7 @@ def enqueue_multiple_variant_creation(item, args):
 		return create_multiple_variants(item, args)
 	else:
 		frappe.enqueue(
-			"erpnext.controllers.item_variant.create_multiple_variants",
+			create_multiple_variants,
 			item=item,
 			args=args,
 			now=frappe.flags.in_test,
@@ -44,18 +44,26 @@ def create_multiple_variants(item, args):
 	count = 0
 	if isinstance(args, string_types):
 		args = json.loads(args)
-
+	item_group = None
+	item_group_attribute = frappe.db.get_value('Item Attribute', {'is_item_group':1}, 'name')
+	if(args.get(item_group_attribute)):
+		if(len(args[item_group_attribute])):
+			item_group = args[item_group_attribute][0]
+		del args[item_group_attribute]
 	args_set = generate_keyed_value_combinations(args)
 	for attribute_values in args_set:
 		if not get_variant(item, args=attribute_values):
-			variant = create_variant(item, attribute_values)
+			variant = create_variant(item, attribute_values, item_group)
+			variant.dont_save = True
 			variant.save()
+			variant.dont_save = False
+			variant.run_method('validate')
 			count += 1
 
 	return count
 
 @frappe.whitelist()
-def create_variant(item, args):
+def create_variant(item, args, item_group=None):
 	if isinstance(args, string_types):
 		args = json.loads(args)
 
@@ -69,16 +77,16 @@ def create_variant(item, args):
 
 	variant.set("attributes", variant_attributes)
 	copy_attributes_to_variant(template, variant)
+	if(item_group):
+		variant.item_group = item_group
 	make_variant_item_code(template.item_code, template.item_name, variant)
 
 	return variant
 
-def make_variant_item_code(template_item_code, template_item_name, variant):
+def make_variant_item_code(template_item_code, template_item_name, variant, dont_set_name=False):
 	"""Uses template's item code and abbreviations to make variant's item code"""
-	brand = frappe.db.get_value('Item', template_item_code, 'brand') or ''
-	if variant.item_code:
-		return
-
+	# if variant.item_code:
+	# 	return
 	abbreviations, abbr_for_item_name = [], []
 	for attr in variant.attributes:
 		item_attribute = frappe.db.sql(
@@ -89,7 +97,8 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 			{"attribute": attr.attribute, "attribute_value": attr.attribute_value},
 			as_dict=True,
 		)
-
+		frappe.errprint(f"{attr.attribute}, {attr.attribute_value}")
+		frappe.errprint(item_attribute or 'item_attribute')
 		if not item_attribute:
 			continue
 			# frappe.throw(_('Invalid attribute {0} {1}').format(frappe.bold(attr.attribute),
@@ -107,8 +116,10 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value + item_attribute[0].prefix or "" + item_attribute[0].suffix or "" if not item_attribute[0].show_only_abbreviation_in_item_name else item_attribute[0].abbr + item_attribute[0].prefix or "" + item_attribute[0].suffix or ""
 		)
 		abbr_for_item_name.append(abbr_or_value_item_name)
-	# abbreviations.insert(1, brand[:3:])
-	# abbr_for_item_name.insert(1, brand)
+
 	if abbreviations:
 		variant.item_code = "{0}{1}".format(template_item_code.replace(" ",'')[:3:], "".join(abbreviations))
-		variant.item_name = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
+		if(not dont_set_name):
+			variant.item_name = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
+	frappe.errprint(variant.item_code)
+	frappe.errprint(variant.item_name)

@@ -57,7 +57,8 @@ doctype_js = {"Item" : "cycle_world/custom/js/item.js"}
 # ------------
 
 # before_install = "cycle_world.install.before_install"
-# after_install = "cycle_world.install.after_install"
+after_install = "cycle_world.install.after_install"
+after_migrate = "cycle_world.install.after_install"
 
 # Uninstallation
 # ------------
@@ -87,9 +88,9 @@ doctype_js = {"Item" : "cycle_world/custom/js/item.js"}
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-#	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Item": "cycle_world.cycle_world.custom.py.item.CycleWorldItem"
+}
 
 # Document Events
 # ---------------
@@ -106,7 +107,10 @@ doc_events = {
 		'validate':'cycle_world.cycle_world.user_permissions.branch.validate'
 	},
 	"Item":{
-		'validate':'cycle_world.cycle_world.custom.item.validate'
+		'validate':'cycle_world.cycle_world.custom.py.item.validate'
+	},
+	"Item Attribute":{
+		'validate':'cycle_world.cycle_world.custom.py.item_attribute.validate'
 	}
 }
 

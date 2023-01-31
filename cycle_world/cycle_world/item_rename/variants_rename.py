@@ -3,21 +3,27 @@ from frappe.model.rename_doc import update_document_title
 from frappe.utils import cstr, flt
 
 def get_all_template():
+	ig = frappe.db.get_value('Item Attribute', {'is_item_group':1}, 'name')
 	temp = frappe.db.get_all('Item', filters={'has_variants':1}, pluck='name')
-	print(temp)
+	frappe.errprint(temp)
+	names = []
 	for i in temp:
 		variants = frappe.db.get_all('Item', filters={'variant_of':i}, pluck='name')
-		print(variants)
 		for j in variants:
 			doc = frappe.get_doc('Item', j)
-			make_variant_item_code(i, i, doc)
+			name = make_variant_item_code(i, i, doc, ig)
+			if name:
+				names.append(name)
+	print(names, len(names))
+	print(list(set(names)), len(list(set(names))))
 
-def make_variant_item_code(template_item_code, template_item_name, variant):
+def make_variant_item_code(template_item_code, template_item_name, variant, item_group):
 	"""Uses template's item code and abbreviations to make variant's item code"""
-	brand = frappe.db.get_value('Item', template_item_code, 'brand') or ''
-	# if variant.item_code:
-	# 	return
 
+	attributes = [i.attribute for i in variant.attributes]
+	if(item_group not in attributes):
+		return
+	print(template_item_code, 'Passed')
 	abbreviations, abbr_for_item_name = [], []
 	for attr in variant.attributes:
 		item_attribute = frappe.db.sql(
@@ -31,28 +37,32 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 
 		if not item_attribute:
 			continue
-			# frappe.throw(_('Invalid attribute {0} {1}').format(frappe.bold(attr.attribute),
-			# 	frappe.bold(attr.attribute_value)), title=_('Invalid Attribute'),
-			# 	exc=InvalidItemAttributeValueError)
+			
+		if(attr.attribute != item_group):
+			abbr_or_value = (
+				cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].abbr
+			)
+			abbreviations.append(abbr_or_value)
 
-		abbr_or_value = (
-			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].abbr
-		)
-		abbreviations.append(abbr_or_value)
+			abbr_or_value_item_name = (
+				cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value if not item_attribute[0].show_only_abbreviation_in_item_name else item_attribute[0].abbr
+			)
+			abbr_for_item_name.append(abbr_or_value_item_name)
+		else:
+			frappe.errprint(attr.attribute_value)
+			variant.update({
+				'item_group':attr.attribute_value
+			})
 
-		abbr_or_value_item_name = (
-			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value if not item_attribute[0].show_only_abbreviation_in_item_name else item_attribute[0].abbr
-		)
-		abbr_for_item_name.append(abbr_or_value_item_name)
-	# abbreviations.insert(1, brand.replace(' ', '')[:3:])
-	# abbr_for_item_name.insert(1, brand.replace(' ', '')[:3:])
-	# if abbreviations:
-	# 	variant.item_code = "{0}".format("".join(abbreviations))
-	# 	variant.item_name = "{0}".format(" ".join(abbr_for_item_name))
 	new_ic = "{0}{1}".format(template_item_code.replace(" ",'')[:3:], "".join(abbreviations))
 	new_in = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
-	print('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic, variant.variant_of)
+	frappe.errprint(variant.item_group)
+	variant.save()
+	# print('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic, variant.variant_of)
+	print(variant.item_name, "||", new_in, "||",variant.item_code, "||", new_ic,'||', variant.item_group)
 	update_document_title('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic)
+	return new_ic
+	
 	
 
 
@@ -77,3 +87,52 @@ def set_item_tax_rate():
 		})
 		pp.insert()
 		cy.insert()
+
+def update_brand_in_item_attributes():
+	"""Update brand field in item attributes which name like 'Model' """
+	import re
+	model_attr = frappe.db.get_all('Item Attribute', filters={'name':['like', '%model%']}, pluck='name')
+	print(model_attr, len(model_attr))
+	s=f=0
+	flrs = []
+	for i in model_attr:
+		txt = re.split("model", i, flags=re.IGNORECASE)[0]
+		print(txt, 1111)
+		if(frappe.db.exists('Brand', {'name':txt})):
+			s+=1
+			frappe.db.set_value('Item Attribute', i, 'brand', txt)
+		else:
+			f+=1
+			flrs.append(i)
+			print('Unsuccessful Attribute: ', i)
+	print(f"Successfull: {s}\nUnsuccessfull: {f}")
+	print('Failures: ',flrs)
+
+def create_attributes_in_new_doctype():
+	doctype = 'CW Item Attribute'
+	it_at = frappe.db.get_all('Item Attribute', pluck='name')
+	tot_count = 0
+	invalid = []
+	for i in it_at:
+		val = frappe.db.get_all('Item Attribute Value', filters={'parent':i}, fields=['attribute_value', 'abbr'])
+		tot_count += len(val)
+		for j in val:
+			doc = frappe.get_doc({
+				'doctype':doctype,
+				'attribute_value':j['attribute_value'],
+				'abbr':j['abbr'],
+				'item_attribute':i,
+			})
+			# try:
+			doc.save()
+			# except:
+			# 	invalid.append(j['attribute_value'])
+	print(f'Total Doc Count: {tot_count}\nInvalid: {invalid}')
+
+def update_old_attribute_table_in_item():
+	var_attr = frappe.db.get_ll('Item Variant Attribute', filters={'parenttype':'Item'}, fields=['name', 'attribute', 'attribute_value'])
+	for i in var_attr:
+		doc = frappe.get_doc('Item Variant Attribute', i['name'])
+		doc.update({
+			
+		})
