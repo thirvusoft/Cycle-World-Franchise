@@ -1,6 +1,8 @@
 import frappe
 import erpnext
+import json
 from frappe import _
+from frappe.model.rename_doc import update_document_title
 from erpnext.stock.doctype.item.item import (Item, update_variants)
 
 class CycleWorldItem(Item):
@@ -24,9 +26,14 @@ class CycleWorldItem(Item):
 						timeout=600,
 					)
 def validate(doc, event=None):
-	if(doc.variant_of):
-		set_variant_name_for_manual_creation(doc)
-	if(doc.get('dont_save')):return
+	if(doc.variant_of and doc.attributes):
+		for i in doc.attributes:
+			i.update({
+				'cw_name':frappe.db.get_value('CW Item Attribute', filters={'item_attribute':i.attribute, 'attribute_value':i.attribute_value}) or ''
+			})
+	if(doc.is_new()):
+		return
+	if(doc.get('dont_save') or not frappe.db.exists('Item', doc.name)):return
 	doc.additional_cost = (doc.get('transportation_cost') or 0) + (doc.get('shipping_cost') or 0) + (doc.get('other_costs') or 0)
 	doc.standard_rate = (doc.get('standard_buying_cost') or 0) + (
 						doc.get('additional_cost') or 0)
@@ -75,7 +82,6 @@ def get_attributes(template=None):
 
 @frappe.whitelist()
 def get_link_options(doctype, txt, searchfield, start, page_len, filters):
-	# frappe.errprint(args)
 	doctype = 'Item Attribute Value'
 	name_field='attribute_value'
 	print(doctype, txt, searchfield, start, page_len, filters)
@@ -91,10 +97,20 @@ def get_link_options(doctype, txt, searchfield, start, page_len, filters):
 			idx
 		limit {start}, {page_len}"""
 	)
-
-
-def set_variant_name_for_manual_creation(doc):
+def autoname(doc, event):
 	from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
 	template_ic = doc.variant_of
 	make_variant_item_code(template_ic, template_ic, doc, True)
+
+@frappe.whitelist()
+def set_variant_name_for_manual_creation(doc):
+	if isinstance(doc, str):
+		doc = json.loads(doc)
+		doc = frappe.get_doc(doc)
+	from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
+	template_ic = doc.variant_of
+	old_ic, old_in = doc.item_code, doc.item_name
+	make_variant_item_code(template_ic, template_ic, doc, True)
+	update_document_title('Item', old_ic, 'item_name', old_in, doc.item_name, doc.item_code, False)
+	return doc.item_code
 

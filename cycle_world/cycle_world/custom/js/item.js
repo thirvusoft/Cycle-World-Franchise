@@ -11,7 +11,7 @@ frappe.ui.form.on('Item',{
 			var selected = {}
 			if(!frm.is_new()){
 				frm.doc.attributes.forEach((attr)=>{
-					selected[attr.attribute] = attr.attribute_value
+					selected[attr.attribute] = attr.cw_name
 				})
 			}
 			var fields = []
@@ -23,9 +23,9 @@ frappe.ui.form.on('Item',{
 				},
 				callback(r){
 					attr_html.innerHTML = ''
-					var brk_count = Math.round(r.message.length / 4)
+					var brk_count = Math.round(r.message.length / 4) 
 					r.message.forEach((attr, i)=>{
-						if(i%brk_count==0){
+						if(i%brk_count==0 && (r.message.length -1) != i ){
 							fields.push({
 								fieldtype: 'Column Break',
 								fieldname:frappe.scrub(`Column Break ${i}`)
@@ -51,7 +51,6 @@ frappe.ui.form.on('Item',{
 						fields: fields,
 						body: attr_html
 					});
-
 					form.make()
 					let df = form.get_field('cycle_accessories')
 					form.fields.forEach(df => {
@@ -63,6 +62,28 @@ frappe.ui.form.on('Item',{
 			})
 			
 		}
+	},
+	after_save(frm){
+		// frm.reload_doc()
+		var docname = frm.doc.name
+		if(!frm.doc.variant_of){
+			return
+		}
+		frappe.call({
+			method:'cycle_world.cycle_world.custom.py.item.set_variant_name_for_manual_creation',
+			args:{
+				doc:frm.doc
+			},
+			callback(r){
+				if(r.message == docname)return
+				$(document).trigger("rename", ['Item', docname, r.message]);
+				if (locals['Item'] && locals['Item'][docname]){
+					delete locals['Item'][docname];
+				}
+				
+				frm.reload_doc();
+			}
+		})
 	},
 	refresh(frm){
 		frm.trigger('setup')
@@ -116,6 +137,7 @@ function set_attributes(frm, form, field_names){
 		var value = form.get_value(df).split(' - ')[0]
 		if(value){
 			attr_tab.push({
+				'cw_name':form.get_value(df),
 				'variant_of':frm.doc.variant_of,
 				'attribute_value':value,
 				'attribute':field.df.label
@@ -124,5 +146,4 @@ function set_attributes(frm, form, field_names){
 	})
 	frm.set_value('attributes', attr_tab)
 	frm.refresh_field('attributes')
-	console.log(attr_tab)
 }

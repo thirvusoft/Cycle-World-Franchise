@@ -5,7 +5,6 @@ from frappe.utils import cstr, flt
 def get_all_template():
 	ig = frappe.db.get_value('Item Attribute', {'is_item_group':1}, 'name')
 	temp = frappe.db.get_all('Item', filters={'has_variants':1}, pluck='name')
-	frappe.errprint(temp)
 	names = []
 	for i in temp:
 		variants = frappe.db.get_all('Item', filters={'variant_of':i}, pluck='name')
@@ -49,18 +48,16 @@ def make_variant_item_code(template_item_code, template_item_name, variant, item
 			)
 			abbr_for_item_name.append(abbr_or_value_item_name)
 		else:
-			frappe.errprint(attr.attribute_value)
 			variant.update({
 				'item_group':attr.attribute_value
 			})
 
 	new_ic = "{0}{1}".format(template_item_code.replace(" ",'')[:3:], "".join(abbreviations))
 	new_in = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
-	frappe.errprint(variant.item_group)
 	variant.save()
 	# print('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic, variant.variant_of)
 	print(variant.item_name, "||", new_in, "||",variant.item_code, "||", new_ic,'||', variant.item_group)
-	update_document_title('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic)
+	update_document_title('Item', variant.name, 'item_name', variant.item_name, new_in, new_in, new_ic)
 	return new_ic
 	
 	
@@ -130,9 +127,11 @@ def create_attributes_in_new_doctype():
 	print(f'Total Doc Count: {tot_count}\nInvalid: {invalid}')
 
 def update_old_attribute_table_in_item():
-	var_attr = frappe.db.get_ll('Item Variant Attribute', filters={'parenttype':'Item'}, fields=['name', 'attribute', 'attribute_value'])
+	var_attr = frappe.db.get_all('Item Variant Attribute', filters={'parenttype':'Item'}, fields=['name', 'attribute', 'attribute_value'])
 	for i in var_attr:
 		doc = frappe.get_doc('Item Variant Attribute', i['name'])
+		cw_name = frappe.db.get_value('CW Item Attribute', filters={'item_attribute':i['attribute'], 'attribute_value':i['attribute_value']})
 		doc.update({
-			
+			'cw_name':cw_name
 		})
+		doc.save()

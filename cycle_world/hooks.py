@@ -107,7 +107,9 @@ doc_events = {
 		'validate':'cycle_world.cycle_world.user_permissions.branch.validate'
 	},
 	"Item":{
-		'validate':'cycle_world.cycle_world.custom.py.item.validate'
+		'validate':'cycle_world.cycle_world.custom.py.item.validate',
+		'after_insert':'cycle_world.cycle_world.custom.py.item.validate',
+		'autoname':'cycle_world.cycle_world.custom.py.item.autoname'
 	},
 	"Item Attribute":{
 		'validate':'cycle_world.cycle_world.custom.py.item_attribute.validate'
