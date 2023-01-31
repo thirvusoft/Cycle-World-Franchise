@@ -82,7 +82,7 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 	abbreviations, abbr_for_item_name = [], []
 	for attr in variant.attributes:
 		item_attribute = frappe.db.sql(
-			"""select i.numeric_values, v.abbr, v.attribute_value, i.show_only_abbreviation_in_item_name
+			"""select i.numeric_values, v.abbr, v.attribute_value, i.show_only_abbreviation_in_item_name,i.prefix ,i.suffix
 			from `tabItem Attribute` i left join `tabItem Attribute Value` v
 				on (i.name=v.parent)
 			where i.name=%(attribute)s and (v.attribute_value=%(attribute_value)s or i.numeric_values = 1)""",
@@ -95,14 +95,16 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 			# frappe.throw(_('Invalid attribute {0} {1}').format(frappe.bold(attr.attribute),
 			# 	frappe.bold(attr.attribute_value)), title=_('Invalid Attribute'),
 			# 	exc=InvalidItemAttributeValueError)
-
+		print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+		print(item_attribute[0].abbr)
+		print(item_attribute[0])
 		abbr_or_value = (
-			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].abbr
+			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].abbr + item_attribute[0].prefix or "" + item_attribute[0].suffix or ""
 		)
 		abbreviations.append(abbr_or_value)
 
 		abbr_or_value_item_name = (
-			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value if not item_attribute[0].show_only_abbreviation_in_item_name else item_attribute[0].abbr
+			cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].attribute_value + item_attribute[0].prefix or "" + item_attribute[0].suffix or "" if not item_attribute[0].show_only_abbreviation_in_item_name else item_attribute[0].abbr + item_attribute[0].prefix or "" + item_attribute[0].suffix or ""
 		)
 		abbr_for_item_name.append(abbr_or_value_item_name)
 	# abbreviations.insert(1, brand[:3:])
