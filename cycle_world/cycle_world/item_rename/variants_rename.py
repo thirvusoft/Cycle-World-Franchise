@@ -119,6 +119,7 @@ def create_attributes_in_new_doctype():
 				'attribute_value':j['attribute_value'],
 				'abbr':j['abbr'],
 				'item_attribute':i,
+				'from_bulk_create':1
 			})
 			# try:
 			doc.save()
