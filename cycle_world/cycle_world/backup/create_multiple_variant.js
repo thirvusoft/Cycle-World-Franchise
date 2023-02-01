@@ -1,4 +1,3 @@
-//In ERPNext item.js
 show_multiple_variants_dialog: function(frm) {
     var me = this;
 
@@ -7,13 +6,11 @@ show_multiple_variants_dialog: function(frm) {
 
     function make_fields_from_attribute_values(attr_dict) {
         let fields = [];
-        // console.log(attr_dict)
         Object.keys(attr_dict).forEach((name, i) => {
-            if(i % 3 === 0){
+            if(i % 4 === 0){
                 fields.push({fieldtype: 'Section Break'});
             }
             fields.push({fieldtype: 'Column Break', label: name});
-            // fields.push({fieldtype: 'Data'});
             attr_dict[name].forEach(value => {
                 fields.push({
                     fieldtype: 'Check',
@@ -51,6 +48,7 @@ show_multiple_variants_dialog: function(frm) {
     function make_and_show_dialog(fields, attr_dict) {
         me.multiple_variant_dialog = new frappe.ui.Dialog({
             title: __("Select Attribute Values"),
+            size:'large',
             fields: [
                 {
                     fieldtype: "HTML",
@@ -90,7 +88,6 @@ show_multiple_variants_dialog: function(frm) {
 
         $($(me.multiple_variant_dialog.$wrapper.find('.form-column'))
             .find('.frappe-control')).css('margin-bottom', '0px');
-        // console.log(me.multiple_variant_dialog.$wrapper)
         let search = `
             <div class="dropdown-search">
                 <input type="text"
@@ -102,7 +99,6 @@ show_multiple_variants_dialog: function(frm) {
         `;
         let search_div = document.createElement('div')
         search_div.innerHTML=search;
-        // console.log(attr_dict)
         Array.from($(me.multiple_variant_dialog.$wrapper.find('.form-column'))).forEach((ele)=>{
             
             if(ele.innerText.indexOf('Select at least one value from each of the attributes.')<=-1)
@@ -120,10 +116,8 @@ show_multiple_variants_dialog: function(frm) {
                 `;
                 var search_div = document.createElement('div');
                 search_div.classList.add($(ele).find('.control-label')[0].innerText.trim().split(' ').join('_'))
-                // console.log(ele, 'lll',)
                 search_div.innerHTML=search;
                 ele.prepend(search_div)
-                // ele.innerHTML = search + ele.innerHTML
                 
             }
         })
@@ -136,14 +130,9 @@ show_multiple_variants_dialog: function(frm) {
                 var search_value = (document.getElementById(attr).value || "").toLowerCase().split(' ').join('')
                 var parent = document.getElementsByClassName(attr.split(' ').join('_')).item(0).parentElement
                 attr_dict[attr].forEach((val)=>{
-                    var condition=''
-                    val.split(' ').forEach(i=>{
-                        condition+= `input[data-fieldname *="${i}"] `
-                    })
-                    var ele = parent.querySelectorAll(`input[data-fieldname *="${val}"]`)
+                    var ele = parent.querySelectorAll(`input[data-fieldname *="${val?.trim() || ''}"]`)
                     ele.forEach((node)=>{
                         var check_box = node.parentElement.parentElement.parentElement
-                        // console.log(val.toLowerCase().split(' ').join('').indexOf(search_value)>=0, '||', val, '||', search_value)
                     if(val.toLowerCase().split(' ').join('').indexOf(search_value)>=0){
                         
                         if(check_box.classList.contains('hidden')){
@@ -151,8 +140,7 @@ show_multiple_variants_dialog: function(frm) {
                         }
                     }
                     else{
-                        if(!check_box.classList.contains('hidden')){
-                            // console.log(val, 'hidden', check_box)
+                        if(!check_box.classList.contains('hidden') && node.getAttribute('data-fieldname').toLowerCase().split(' ').join('').indexOf(search_value)<0){
                             check_box.classList.add('hidden')
                         }
                     }
