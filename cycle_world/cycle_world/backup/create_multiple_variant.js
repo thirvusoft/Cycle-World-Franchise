@@ -25,7 +25,7 @@ show_multiple_variants_dialog: function(frm) {
                         });
                         if(lengths.includes(0)) {
                             me.multiple_variant_dialog.get_primary_btn().html(__('Create Variants'));
-                            me.multiple_variant_dialog.disable_primary_action();
+                            // me.multiple_variant_dialog.disable_primary_action();
                         } else {
 
                             let no_of_combinations = lengths.reduce((a, b) => a * b, 1);
@@ -88,19 +88,8 @@ show_multiple_variants_dialog: function(frm) {
 
         $($(me.multiple_variant_dialog.$wrapper.find('.form-column'))
             .find('.frappe-control')).css('margin-bottom', '0px');
-        let search = `
-            <div class="dropdown-search">
-                <input type="text"
-                    placeholder="${__('Search')}"
-                    data-element="search"
-                    class="dropdown-search-input form-control input-xs"
-                >
-            </div>
-        `;
-        let search_div = document.createElement('div')
-        search_div.innerHTML=search;
+        let attr_id = {};
         Array.from($(me.multiple_variant_dialog.$wrapper.find('.form-column'))).forEach((ele)=>{
-            
             if(ele.innerText.indexOf('Select at least one value from each of the attributes.')<=-1)
             {
                 var search = `
@@ -110,7 +99,7 @@ show_multiple_variants_dialog: function(frm) {
                         data-element="search"
                         data-attribute="${$(ele).find('.control-label')[0].innerText}"
                         class="dropdown-search-input form-control input-xs"
-                        id = "${$(ele).find('.control-label')[0].innerText}"
+                        id="${$(ele).find('.control-label')[0].innerText}-search"
                     >
                 </div>
                 `;
@@ -119,20 +108,70 @@ show_multiple_variants_dialog: function(frm) {
                 search_div.innerHTML=search;
                 ele.prepend(search_div)
                 
+                attr_id[$(ele).find('.control-label')[0].innerText] = $(ele).find('.control-label')[0].innerText.split(' ').join('_').toLowerCase()
+                var create_html = `
+                <button id="${attr_id[$(ele).find('.control-label')[0].innerText]}" class = 'btn btn-sm btn-modal-primary' type='button' 
+                    style='background-color:#98dff5;color:black;width:60px;height:25px;margin-top:5px;text-align:center;padding-top: 3px;'>
+                    Create
+                </div>
+                `
+                var create_button = document.createElement('div');
+                create_button.innerHTML = create_html;
+                create_button.style.float='right'
+                var label = ele.getElementsByClassName('control-label')[0];
+                label.parentNode.insertBefore(create_button, label.nextSibling);
+                create_button.addEventListener('click', ()=>{
+                    var doc = frappe.model.get_new_doc('CW Item Attribute');
+                    doc.item_attribute = $(ele).find('.control-label')[0].innerText;
+                    doc.attribute_value = (me.multiple_variant_dialog.wrapper[0].querySelector(`[id="${$(ele).find('.control-label')[0].innerText}-search"]`).value || "").toLowerCase().split(' ').join('');
+                    doc.abbr = '';
+                    frappe.ui.form.make_quick_entry('CW Item Attribute', function(doc){
+                        var new_field = document.createElement('div')
+                        new_field.classList.add('form-group')
+                        new_field.classList.add('frappe-control')
+                        new_field.classList.add('input-max-width')
+                        new_field.setAttribute('data-fieldname', doc.attribute_value)
+                        new_field.setAttribute('data-fieldtype', 'Check')
+                        new_field.setAttribute('title', doc.attribute_value)
+                        var search_value = (me.multiple_variant_dialog.wrapper[0].querySelector(`[id="${doc.item_attribute}-search"]`).value || "").toLowerCase().split(' ').join('')
+                        var visibility='';
+                        if(doc.attribute_value.toLowerCase().split(' ').join('').indexOf(search_value)<0){
+                            visibility='hidden';
+                        }
+                        new_field.innerHTML=`
+                        <div class="form-group frappe-control input-max-width" data-fieldtype="Check" data-fieldname="${doc.attribute_value}" title="${doc.attribute_value}" style="margin-bottom: 0px;">
+                        <div class='checkbox ${visibility}'>
+                        <label>
+                            <span class="input-area" style="display: inline;">
+                                <input type="checkbox" autocomplete="off" class="input-with-feedback" data-fieldtype="Check" data-fieldname="${doc.attribute_value}" placeholder="">
+                            </span>
+                            <span class="disp-area" style="display: none;"><input type="checkbox" disabled="" class="disabled-deselected"></span>
+                            <span class="label-area">${doc.attribute_value}</span>
+                        </label>
+                        <p class="help-box small text-muted"></p>
+                        </div>
+                        `
+                        attr_dict[doc.item_attribute].push(doc.attribute_value)
+                        ele.append(new_field)
+                        document.querySelectorAll(`input[data-fieldname="${doc.attribute_value}"]`)[0].focus();
+                    }, undefined, doc)
+                })
             }
         })
-        me.multiple_variant_dialog.disable_primary_action();
+        // me.multiple_variant_dialog.disable_primary_action();
         me.multiple_variant_dialog.clear();
         me.multiple_variant_dialog.show();
         setTimeout(() => {
         Object.keys(attr_dict).forEach((attr)=>{
-            document.getElementsByClassName(attr.trim().split(' ').join('_')).item(0).addEventListener('input', function(){
-                var search_value = (document.getElementById(attr).value || "").toLowerCase().split(' ').join('')
-                var parent = document.getElementsByClassName(attr.split(' ').join('_')).item(0).parentElement
+            var search_node = document.getElementsByClassName(attr.trim().split(' ').join('_'))
+            search_node.item(search_node.length-1).addEventListener('input', function(){
+                var search_value = (me.multiple_variant_dialog.wrapper[0].querySelector(`[id="${attr}-search"]`).value || "").toLowerCase().split(' ').join('')
+                var temp = document.getElementsByClassName(attr.split(' ').join('_'));
+                var parent = temp.item(temp.length - 1).parentElement
                 attr_dict[attr].forEach((val)=>{
                     var ele = parent.querySelectorAll(`input[data-fieldname *="${val?.trim() || ''}"]`)
                     ele.forEach((node)=>{
-                        var check_box = node.parentElement.parentElement.parentElement
+                        var check_box = node.parentElement.parentElement.parentElement;
                     if(val.toLowerCase().split(' ').join('').indexOf(search_value)>=0){
                         
                         if(check_box.classList.contains('hidden')){
