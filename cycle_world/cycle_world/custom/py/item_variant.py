@@ -114,5 +114,5 @@ def make_variant_item_code(template_item_code, template_item_name, variant, dont
 
 	if abbreviations:
 		variant.item_code = "{0}{1}".format(template_item_code.replace(" ", '')[:3:], "".join(abbreviations))
-		if(not dont_set_name):
-			variant.item_name = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
+		# if(not dont_set_name):
+		variant.item_name = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
