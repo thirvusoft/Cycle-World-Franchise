@@ -31,7 +31,11 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Item" : "cycle_world/custom/js/item.js"}
+doctype_js = {
+			"Item" : "cycle_world/custom/js/item.js",
+			"Purchase Invoice" : "cycle_world/custom/js/purchase_invoice.js",
+			"Purchase Receipt" : "cycle_world/custom/js/purchase_receipt.js",
+			}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -113,6 +117,16 @@ doc_events = {
 	},
 	"Item Attribute":{
 		'validate':'cycle_world.cycle_world.custom.py.item_attribute.validate'
+	},
+	"Purchase Invoice":{
+		'on_submit':'cycle_world.cycle_world.custom.py.purchase_invoice.create_landed_voucher',
+		'on_cancel':'cycle_world.cycle_world.custom.py.purchase_invoice.on_cancel',
+		'on_trash':'cycle_world.cycle_world.custom.py.purchase_invoice.on_trash'
+	},
+	"Purchase Receipt":{
+		'on_submit':'cycle_world.cycle_world.custom.py.purchase_invoice.create_landed_voucher',
+		'on_cancel':'cycle_world.cycle_world.custom.py.purchase_invoice.on_cancel',
+		'on_trash':'cycle_world.cycle_world.custom.py.purchase_invoice.on_trash'
 	}
 }
 
