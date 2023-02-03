@@ -107,6 +107,8 @@ def set_variant_name_for_manual_creation(doc):
 	if isinstance(doc, str):
 		doc = json.loads(doc)
 		doc = frappe.get_doc(doc)
+	if(not doc.get('variant_of')):
+		return
 	from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
 	template_ic = doc.variant_of
 	old_ic, old_in = doc.item_code, doc.item_name
