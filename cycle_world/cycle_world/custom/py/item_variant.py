@@ -98,7 +98,7 @@ def make_variant_item_code(template_item_code, template_item_name, variant, dont
 			as_dict=True,
 		)
 		if not item_attribute:
-			return
+			continue
 			# frappe.throw(_('Invalid attribute {0} {1}').format(frappe.bold(attr.attribute),
 			# 	frappe.bold(attr.attribute_value)), title=_('Invalid Attribute'),
 			# 	exc=InvalidItemAttributeValueError)
