@@ -41,6 +41,7 @@ frappe.ui.form.on('Item',{
 								filters:{'item_attribute':attr},
 								get_route_options_for_new_doc: function(field) {
 									return  {
+										'attribute_value':form.get_value(`cycle_${frappe.scrub(attr)}`),
 										'item_attribute' : attr,
 										'template':!frm.is_new()?frm.doc.name:''
 									}

@@ -8,16 +8,5 @@ frappe.ui.form.on('Purchase Invoice',{
                 }
             };
         });
-    },
-    after_submit: function(frm){
-        frappe.call({
-            method:'cycle_world.cycle_world.custom.py.purchase_invoice.create_landed_voucher',
-            args:{
-                doc:frm.doc,
-            },
-            callback(r){
-
-            }
-        })
     }
 });
