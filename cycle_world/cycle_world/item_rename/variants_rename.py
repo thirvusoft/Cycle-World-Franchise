@@ -138,3 +138,9 @@ def update_old_attribute_table_in_item():
 			'cw_name':cw_name
 		})
 		doc.save()
+
+def copy_old_attribute_value():
+	for i in frappe.db.get_all('Item Attribute Value', fields=['name', 'attribute_value', 'abbr']):
+		frappe.db.set_value('Item Attribute Value', i['name'], 'old_value', i['attribute_value'])
+		frappe.db.set_value('Item Attribute Value', i['name'], 'old_abbr', i['abbr'])
+		frappe.db.set_value('Item Attribute Value', i['name'], 'curr_value', i['attribute_value'])
