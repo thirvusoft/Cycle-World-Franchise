@@ -39,3 +39,6 @@ class CWItemAttribute(Document):
 		old_name = self.name
 		self.autoname()
 		update_document_title(doctype="CW Item Attribute", docname=old_name, new_name=self.name)
+		attrs = frappe.db.get_all("Item Variant Attribute", {'parenttype':'Item', 'attribute':self.item_attribute, 'attribute_value':changed_values.get('old_value')}, pluck ='name')
+		for i in attrs:
+			frappe.db.set_value("Item Variant Attribute", i, 'cw_name', self.name)

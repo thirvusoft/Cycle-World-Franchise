@@ -75,13 +75,6 @@ def make_custom_fields():
         ],
         'Item Attribute Value':[
             {
-                'fieldname':'curr_value',
-                'label':'Current Attribute Value',
-                'fieldtype':'Data',
-                'read_only':1,
-                'default':'',
-            },
-            {
                 'fieldname':'old_value',
                 'label':'Old Attribute Value',
                 'fieldtype':'Data',
@@ -96,7 +89,25 @@ def make_custom_fields():
                 'insert_after':'old_value',
                 'read_only':1,
                 'default':'',
-            }
+            },
+             {
+                'fieldname':'curr_value',
+                'label':'Current Attribute Value',
+                'fieldtype':'Data',
+                'read_only':1,
+                'default':'',
+                'insert_after':'old_abbr'
+            },
+        ],
+        'Item Attribute':[
+             {
+                'fieldname':'last_changes',
+                'label':'Recently Changed Attributes',
+                'fieldtype':'Code',
+                'read_only':1,
+                'default':'[]',
+                'insert_after':'item_attribute_values'
+            },
         ]
     }
     create_custom_fields(custom_field)
