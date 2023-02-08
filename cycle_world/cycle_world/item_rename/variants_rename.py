@@ -138,3 +138,52 @@ def update_old_attribute_table_in_item():
 			'cw_name':cw_name
 		})
 		doc.save()
+
+def copy_old_attribute_value():
+	for i in frappe.db.get_all('Item Attribute Value', fields=['name', 'attribute_value', 'abbr']):
+		frappe.db.set_value('Item Attribute Value', i['name'], 'old_value', i['attribute_value'])
+		frappe.db.set_value('Item Attribute Value', i['name'], 'old_abbr', i['abbr'])
+		frappe.db.set_value('Item Attribute Value', i['name'], 'curr_value', i['attribute_value'])
+
+def check_attributes_existance():
+	attr = frappe.get_all('Item Attribute', pluck='name')
+	non_exist = []
+	attr_dict = {}
+	tot_val = []
+	for i in attr:
+		val = frappe.get_all('Item Attribute Value', filters={'parent':i}, pluck='attribute_value')
+		tot_val += val
+		item_var_val = frappe.get_all('Item Variant Attribute', filters={'attribute':i, 'attribute_value':['not in',val], 'variant_of':['is', 'set'], 'cw_name':['is', 'not set']}, pluck='attribute_value')
+		item_variants = frappe.get_all('Item Variant Attribute', filters={'attribute':i, 'attribute_value':['not in',val], 'variant_of':['is', 'set'], 'cw_name':['is', 'not set']}, fields=['attribute_value', 'name', 'parent'])
+		
+		for i in item_variants:
+			if(i['attribute_value'] not in list(attr_dict.keys())):
+				attr_dict[i['attribute_value']]=[[i['name'], i['parent']]]
+			else:
+				attr_dict[i['attribute_value']].append([i['name'], i['parent']])
+
+
+		if(len(item_var_val)):
+			non_exist+=list(set(item_var_val))
+	print('Attr Dict: ', attr_dict)
+	print('Non Existing Values: ', non_exist)
+	a = [i for i in non_exist if(i not in tot_val)]
+	print('Final: ',a)
+	# return
+	for i in a:
+		like = frappe.get_value('Item Attribute Value', {'attribute_value':['like', i]}, 'attribute_value')
+		if(like):
+			print(i,like, len(i), len(like))
+			cw_name = frappe.db.get_value('CW Item Attribute', {'attribute_value':like}, 'name')
+			for j in attr_dict[i]:
+				frappe.db.set_value('Item Variant Attribute', j, 'attribute_value', like)
+				frappe.db.set_value('Item Variant Attribute', j, 'cw_name', cw_name)
+				print(j)		
+	map_ = {'INNER':'-INNER', 'OUTER':'-OUTER', 'DISC CABLE-2050MM':'-DISC(2050MM)','INNER&OUTER':'-INNER&OUTER', 'M.GRY/YELLOW':'M.GREY/YELLOW','M.ORANG':'M.ORANGE','ORANG/GRY':'ORANGE/GREY', 'SIL/M.ORANG':'SIL/M.ORANGE','BLACK/ORANG':'BLACK/ORANGE', 'GRAY/BLUE':'GREY/BLUE', 'GRY/ORANG':'GREY/ORANGE', 'PINK/GRAY':'PINK/GREY', 'M.GR/M.GREEN':'M.GREY/M.GREEN', 'M RED / BLACK':'M.RED / BLACK', 'M.GRY/ORANG':'M.GREY/ORANGE', 'BASKET-ADULT':'ADULT', 'BASKET-KIDS':'KIDS'}
+	for i in map_:
+		var = frappe.get_all('Item Variant Attribute', filters={'attribute_value':i}, pluck='name')
+		cw_name = frappe.db.get_value('CW Item Attribute', {'attribute_value':map_[i]}, 'name')
+		for j in var:
+			print(cw_name, i)
+			frappe.db.set_value('Item Variant Attribute', j, 'attribute_value', map_[i])
+			frappe.db.set_value('Item Variant Attribute', j, 'cw_name', cw_name)
