@@ -179,11 +179,11 @@ def check_attributes_existance():
 				frappe.db.set_value('Item Variant Attribute', j, 'attribute_value', like)
 				frappe.db.set_value('Item Variant Attribute', j, 'cw_name', cw_name)
 				print(j)		
-	map_ = {'GRAY/BLUE':'GREY/BLUE', 'GRY/ORANG':'GREY/ORANGE', 'PINK/GRAY':'PINK/GREY', 'M.GR/M.GREEN':'M.GREY/M.GREEN', 'M RED / BLACK':'M.RED / BLACK', 'M.GRY/ORANG':'M.GREY/ORANGE', 'BASKET-ADULT':'ADULT', 'BASKET-KIDS':'KIDS'}
+	map_ = {'INNER':'-INNER', 'OUTER':'-OUTER', 'DISC CABLE-2050MM':'-DISC(2050MM)','INNER&OUTER':'-INNER&OUTER', 'M.GRY/YELLOW':'M.GREY/YELLOW','M.ORANG':'M.ORANGE','ORANG/GRY':'ORANGE/GREY', 'SIL/M.ORANG':'SIL/M.ORANGE','BLACK/ORANG':'BLACK/ORANGE', 'GRAY/BLUE':'GREY/BLUE', 'GRY/ORANG':'GREY/ORANGE', 'PINK/GRAY':'PINK/GREY', 'M.GR/M.GREEN':'M.GREY/M.GREEN', 'M RED / BLACK':'M.RED / BLACK', 'M.GRY/ORANG':'M.GREY/ORANGE', 'BASKET-ADULT':'ADULT', 'BASKET-KIDS':'KIDS'}
 	for i in map_:
 		var = frappe.get_all('Item Variant Attribute', filters={'attribute_value':i}, pluck='name')
 		cw_name = frappe.db.get_value('CW Item Attribute', {'attribute_value':map_[i]}, 'name')
-		print(cw_name, i)
 		for j in var:
+			print(cw_name, i)
 			frappe.db.set_value('Item Variant Attribute', j, 'attribute_value', map_[i])
 			frappe.db.set_value('Item Variant Attribute', j, 'cw_name', cw_name)
