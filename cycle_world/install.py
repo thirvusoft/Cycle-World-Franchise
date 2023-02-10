@@ -72,6 +72,42 @@ def make_custom_fields():
             'fieldtype':'Section Break',
             'insert_after':'landed_cost_taxes'
             }
+        ],
+        'Item Attribute Value':[
+            {
+                'fieldname':'old_value',
+                'label':'Old Attribute Value',
+                'fieldtype':'Data',
+                'insert_after':'abbr',
+                'read_only':1,
+                'default':'',
+            },
+            {
+                'fieldname':'old_abbr',
+                'label':'Old Abbreviation',
+                'fieldtype':'Data',
+                'insert_after':'old_value',
+                'read_only':1,
+                'default':'',
+            },
+             {
+                'fieldname':'curr_value',
+                'label':'Current Attribute Value',
+                'fieldtype':'Data',
+                'read_only':1,
+                'default':'',
+                'insert_after':'old_abbr'
+            },
+        ],
+        'Item Attribute':[
+             {
+                'fieldname':'last_changes',
+                'label':'Recently Changed Attributes',
+                'fieldtype':'Code',
+                'read_only':1,
+                'default':'[]',
+                'insert_after':'item_attribute_values'
+            },
         ]
     }
     create_custom_fields(custom_field)

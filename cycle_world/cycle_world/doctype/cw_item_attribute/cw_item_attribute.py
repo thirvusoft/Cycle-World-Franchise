@@ -1,14 +1,20 @@
 # Copyright (c) 2023, Thirvusoft and contributors
 # For license information, please see license.txt
 
+from cycle_world.cycle_world.custom.py.item import autoname
 import frappe
 from frappe.model.document import Document
+from frappe.model.rename_doc import update_document_title
+
 
 class CWItemAttribute(Document):
 	def autoname(self):
+		name = f"{self.attribute_value} - {self.abbr}"
 		self.name = f"{self.attribute_value} - {self.abbr}"
+			
 		if(frappe.db.exists('CW Item Attribute', self.name)):
-			self.name = f"{self.attribute_value} - {self.abbr} - {self.item_attribute.split(' ')[0]}"
+				self.name = f"{self.attribute_value} - {self.abbr} - {self.item_attribute.split(' ')[0]}"
+			
 
 	def after_insert(self):
 		if(self.from_bulk_create):
@@ -22,3 +28,17 @@ class CWItemAttribute(Document):
 			'attribute_value': self.attribute_value,
 		})
 		doc.save()
+	
+	def update_cw_attributes(self, changed_values):
+		self.update({
+			'abbr':changed_values.get('abbr') or '',
+			'attribute_value':changed_values.get('attribute_value') or ''
+		})
+		self.save()
+		self.reload()
+		old_name = self.name
+		self.autoname()
+		update_document_title(doctype="CW Item Attribute", docname=old_name, new_name=self.name)
+		attrs = frappe.db.get_all("Item Variant Attribute", {'parenttype':'Item', 'attribute':self.item_attribute, 'attribute_value':changed_values.get('old_value')}, pluck ='name')
+		for i in attrs:
+			frappe.db.set_value("Item Variant Attribute", i, 'cw_name', self.name)

@@ -35,6 +35,7 @@ doctype_js = {
 			"Item" : "cycle_world/custom/js/item.js",
 			"Purchase Invoice" : "cycle_world/custom/js/purchase_invoice.js",
 			"Purchase Receipt" : "cycle_world/custom/js/purchase_receipt.js",
+			"Item Attribute" : "cycle_world/custom/js/item_attribute.js",
 			}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
