@@ -4,6 +4,9 @@ import json
 from frappe import _
 from frappe.model.rename_doc import update_document_title
 from erpnext.stock.doctype.item.item import (Item, update_variants, invalidate_cache_for_item)
+from frappe.utils import strip
+from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
+from frappe.model.naming import set_name_by_naming_series
 
 class CycleWorldItem(Item):
 	def update_variants(self):
@@ -61,6 +64,27 @@ class CycleWorldItem(Item):
 					frappe.db.set_value(
 						dt, d.name, "item_wise_tax_detail", json.dumps(item_wise_tax_detail), update_modified=False
 					)
+
+	def autoname(self):
+		if frappe.db.get_default("item_naming_by") == "Naming Series":
+			if(self.has_variants):
+				self.name = self.item_code or self.brand or self.item_name
+				self.item_code = self.item_code or self.brand or self.item_name
+				self.item_name = self.item_name or self.brand or self.item_code
+			else:
+				set_name_by_naming_series(self)
+		else:
+			if self.variant_of:
+				if not self.item_code:
+					template_item_name = frappe.db.get_value("Item", self.variant_of, "item_name")
+					make_variant_item_code(self.variant_of, template_item_name, self)
+			else:
+				self.name = self.item_code
+			
+
+			
+
+
 def validate(doc, event=None):
 	if(doc.variant_of and doc.attributes):
 		for i in doc.attributes:
@@ -134,7 +158,6 @@ def get_link_options(doctype, txt, searchfield, start, page_len, filters):
 		limit {start}, {page_len}"""
 	)
 def autoname(doc, event):
-	from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
 	template_ic = doc.variant_of
 	make_variant_item_code(template_ic, template_ic, doc, True)
 
@@ -145,7 +168,7 @@ def set_variant_name_for_manual_creation(doc):
 		doc = frappe.get_doc(doc)
 	if(not doc.get('variant_of')):
 		return
-	from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
+	
 	template_ic = doc.variant_of
 	old_ic, old_in = doc.item_code, doc.item_name
 	make_variant_item_code(template_ic, template_ic, doc, True)

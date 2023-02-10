@@ -189,7 +189,7 @@ def check_attributes_existance():
 			frappe.db.set_value('Item Variant Attribute', j, 'cw_name', cw_name)
 
 def update_item_to_naming_series():
-	frappe.db.sql('''Update `tabSeries` set current=0 where name="TCW-";''')
+	# frappe.db.sql('''Update `tabSeries` set current= where name="TCW-";''')
 	counter = frappe.db.sql("""
 				select current from `tabSeries` where name='TCW-';
 				""")[0][0]
