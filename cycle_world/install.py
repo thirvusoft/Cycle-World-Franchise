@@ -10,6 +10,9 @@ def after_install():
 def create_property_setter():
     make_property_setter('Item', 'variant_of', 'read_only', 0, 'Check')
     make_property_setter('Item', 'item_code', 'reqd', 0, 'Check')
+    make_property_setter('Item', 'naming_series', 'options', 'STO-ITEM-.YYYY.-\nTCW-.####', 'Text')
+    make_property_setter('Item', 'naming_series', 'default', 'TCW-.####', 'Text')
+
 
 def make_custom_fields():
     custom_field = {

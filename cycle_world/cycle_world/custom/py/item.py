@@ -3,7 +3,7 @@ import erpnext
 import json
 from frappe import _
 from frappe.model.rename_doc import update_document_title
-from erpnext.stock.doctype.item.item import (Item, update_variants)
+from erpnext.stock.doctype.item.item import (Item, update_variants, invalidate_cache_for_item)
 
 class CycleWorldItem(Item):
 	def update_variants(self):
@@ -24,6 +24,42 @@ class CycleWorldItem(Item):
 						template=self,
 						now=frappe.flags.in_test,
 						timeout=600,
+					)
+
+	def after_rename(self, old_name, new_name, merge):
+		if merge:
+			self.validate_duplicate_item_in_stock_reconciliation(old_name, new_name)
+			frappe.msgprint(
+				_("It can take upto few hours for accurate stock values to be visible after merging items."),
+				indicator="orange",
+				title="Note",
+			)
+
+		if self.published_in_website:
+			invalidate_cache_for_item(self)
+
+		# frappe.db.set_value("Item", new_name, "item_code", new_name)
+
+		if merge:
+			self.set_last_purchase_rate(new_name)
+			self.recalculate_bin_qty(new_name)
+
+		for dt in ("Sales Taxes and Charges", "Purchase Taxes and Charges"):
+			for d in frappe.db.sql(
+				"""select name, item_wise_tax_detail from `tab{0}`
+					where ifnull(item_wise_tax_detail, '') != ''""".format(
+					dt
+				),
+				as_dict=1,
+			):
+
+				item_wise_tax_detail = json.loads(d.item_wise_tax_detail)
+				if isinstance(item_wise_tax_detail, dict) and old_name in item_wise_tax_detail:
+					item_wise_tax_detail[new_name] = item_wise_tax_detail[old_name]
+					item_wise_tax_detail.pop(old_name)
+
+					frappe.db.set_value(
+						dt, d.name, "item_wise_tax_detail", json.dumps(item_wise_tax_detail), update_modified=False
 					)
 def validate(doc, event=None):
 	if(doc.variant_of and doc.attributes):
@@ -113,6 +149,8 @@ def set_variant_name_for_manual_creation(doc):
 	template_ic = doc.variant_of
 	old_ic, old_in = doc.item_code, doc.item_name
 	make_variant_item_code(template_ic, template_ic, doc, True)
-	update_document_title('Item', old_ic, 'item_name', old_in, doc.item_name, doc.item_code, False)
+	# update_document_title('Item', old_ic, 'item_name', old_in, doc.item_name, doc.item_code, False)
+	frappe.db.set_value('Item', doc.name, 'item_code', doc.item_code)
+	frappe.db.set_value('Item', doc.name, 'item_name', doc.item_name)
 	return doc.item_code
 

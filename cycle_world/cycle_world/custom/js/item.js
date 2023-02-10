@@ -77,10 +77,10 @@ frappe.ui.form.on('Item',{
 			},
 			callback(r){
 				if(r.message == docname)return
-				$(document).trigger("rename", ['Item', docname, r.message]);
-				if (locals['Item'] && locals['Item'][docname]){
-					delete locals['Item'][docname];
-				}
+				// $(document).trigger("rename", ['Item', docname, r.message]);
+				// if (locals['Item'] && locals['Item'][docname]){
+				// 	delete locals['Item'][docname];
+				// }
 				
 				frm.reload_doc();
 			}

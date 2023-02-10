@@ -114,7 +114,7 @@ doc_events = {
 	"Item":{
 		'validate':'cycle_world.cycle_world.custom.py.item.validate',
 		'after_insert':'cycle_world.cycle_world.custom.py.item.validate',
-		'autoname':'cycle_world.cycle_world.custom.py.item.autoname'
+		# 'autoname':'cycle_world.cycle_world.custom.py.item.autoname'
 	},
 	"Item Attribute":{
 		'validate':'cycle_world.cycle_world.custom.py.item_attribute.validate'
