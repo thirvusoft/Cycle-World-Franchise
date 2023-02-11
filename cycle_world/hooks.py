@@ -14,7 +14,7 @@ app_license = "MIT"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/cycle_world/css/cycle_world.css"
-# app_include_js = "/assets/cycle_world/js/cycle_world.js"
+app_include_js = "/assets/cycle_world/js/item_quick_entry.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/cycle_world/css/cycle_world.css"

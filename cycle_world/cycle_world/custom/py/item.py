@@ -92,6 +92,7 @@ def validate(doc, event=None):
 				'cw_name':frappe.db.get_value('CW Item Attribute', filters={'item_attribute':i.attribute, 'attribute_value':i.attribute_value}) or ''
 			})
 	if(doc.is_new()):
+		autoname(doc, event)
 		return
 	if(doc.get('dont_save') or not frappe.db.exists('Item', doc.name)):return
 	doc.additional_cost = (doc.get('transportation_cost') or 0) + (doc.get('shipping_cost') or 0) + (doc.get('other_costs') or 0)
@@ -99,7 +100,7 @@ def validate(doc, event=None):
 						doc.get('additional_cost') or 0)
 	doc.standard_rate = doc.get('standard_rate') + doc.get('standard_rate')*(doc.get('ts_margin') or 0)/100 
 	doc.standard_rate = doc.get('standard_rate') - doc.get('standard_rate')*(doc.get('ts_discount_') or 0)/100 
-	if((doc.get('mrp') or 0) < (doc.get('standard_rate') or 0)):
+	if(doc.get('mrp') and (doc.get('mrp') or 0) < (doc.get('standard_rate') or 0)):
 		frappe.msgprint(f'Standard Selling rate({doc.get("standard_rate")}) is greater than MRP rate({doc.get("mrp")}).')
 	insert_prices(doc)
 	
