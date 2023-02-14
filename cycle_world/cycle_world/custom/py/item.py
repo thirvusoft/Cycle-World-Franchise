@@ -82,7 +82,20 @@ class CycleWorldItem(Item):
 				self.name = self.item_code
 			
 
-			
+@frappe.whitelist()
+def update_item_price_from_purchase(items):
+	if isinstance(items, str):
+		items = json.loads(items)
+	for i in items:
+		if(i.get('item_code')):
+			item = frappe.get_doc('Item', i.get('item_code'))
+			item.update({
+				'ts_margin':i.get('selling_margin') or 0,
+				'mrp':i.get('mrp') or 0,
+				'standard_buying_cost':i.get('rate'),
+			})
+			item.flags.ignore_permissions = True
+			item.save()
 
 
 def validate(doc, event=None):

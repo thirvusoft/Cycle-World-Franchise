@@ -8,5 +8,14 @@ frappe.ui.form.on('Purchase Invoice',{
                 }
             };
         });
+    },
+    on_submit: function(frm){
+        frappe.call({
+            method: 'cycle_world.cycle_world.custom.py.item.update_item_price_from_purchase',
+            args:{
+                items:frm.doc.items
+            }
+        })
+        
     }
 });
