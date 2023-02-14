@@ -1,3 +1,8 @@
+frappe.form.link_formatters['Item'] = function(value, doc) {
+	return doc.item_name || ""
+}
+
+
 frappe.provide('frappe.ui.form');
 
 frappe.ui.form.ItemQuickEntryForm = frappe.ui.form.QuickEntryForm.extend({

@@ -161,7 +161,8 @@ doc_events = {
 # ------------------------------
 #
 override_whitelisted_methods = {
-	"erpnext.controllers.item_variant.enqueue_multiple_variant_creation": "cycle_world.cycle_world.custom.py.item_variant.enqueue_multiple_variant_creation"
+	"erpnext.controllers.item_variant.enqueue_multiple_variant_creation": "cycle_world.cycle_world.custom.py.item_variant.enqueue_multiple_variant_creation",
+	"frappe.desk.search.search_link":"cycle_world.cycle_world.custom.py.search.search_link"
 }
 #
 # each overriding function accepts a `data` argument;

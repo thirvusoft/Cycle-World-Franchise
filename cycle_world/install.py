@@ -20,7 +20,7 @@ def make_custom_fields():
             {
             'fieldname':'land_cst_sc_brk',
             'fieldtype':'Section Break',
-            'insert_after':'section_break_49',
+            'insert_after':'disable_rounded_total',
             'label':'Landed Cost Voucher',
             'collapsible':1,
             'collapsible_depends_on':'eval:doc.update_stock',
