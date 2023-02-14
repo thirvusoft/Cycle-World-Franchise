@@ -4,7 +4,7 @@ import json
 from frappe import _
 from frappe.model.rename_doc import update_document_title
 from erpnext.stock.doctype.item.item import (Item, update_variants, invalidate_cache_for_item)
-from frappe.utils import strip
+from frappe.utils import strip, now
 from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
 from frappe.model.naming import set_name_by_naming_series
 
@@ -96,7 +96,7 @@ def validate(doc, event=None):
 		return
 	if(doc.get('dont_save') or not frappe.db.exists('Item', doc.name)):return
 	doc.additional_cost = (doc.get('transportation_cost') or 0) + (doc.get('shipping_cost') or 0) + (doc.get('other_costs') or 0)
-	doc.standard_rate = (doc.get('standard_buying_cost') or 0) + (
+	doc.standard_rate = float(doc.get('standard_buying_cost') or 0) + (
 						doc.get('additional_cost') or 0)
 	doc.standard_rate = doc.get('standard_rate') + doc.get('standard_rate')*(doc.get('ts_margin') or 0)/100 
 	doc.standard_rate = doc.get('standard_rate') - doc.get('standard_rate')*(doc.get('ts_discount_') or 0)/100 
@@ -119,22 +119,42 @@ def add_price(self, field=None, price_list=None):
 			"Selling Settings", "selling_price_list"
 		) or frappe.db.get_value("Price List", _("Standard Selling"))
 	if price_list:
-		ip = frappe.get_value('Item Price', {'price_list':price_list, 'item_code':self.name})
+		ip = frappe.get_all('Item Price', {'price_list':price_list, 'item_code':self.name, 'valid_upto':["is","not set"]}, 'name')
+		print(('Item Price', {'price_list':price_list, 'item_code':self.name, 'valid_upto':["is","not set"]}, 'name'))
 		if(ip):
-			frappe.delete_doc_if_exists('Item Price', ip, force=1)
-		if(not self.get(field) or self.get('has_variants')):return
-		item_price = frappe.get_doc(
-			{
-				"doctype": "Item Price",
-				"price_list": price_list,
-				"item_code": self.name,
-				"uom": self.stock_uom,
-				"brand": self.brand,
-				"currency": erpnext.get_default_currency(),
-				"price_list_rate": self.get(field) or 0,
-			}
-		)
-		item_price.save()
+			exists_doc = frappe.get_doc('Item Price', ip[0].name)
+			if(not self.get(field) or self.get('has_variants')):return
+			if exists_doc.price_list_rate == self.get(field):
+				return
+			else:
+				exists_doc.valid_upto = now()
+				exists_doc.save()
+		
+				item_price = frappe.get_doc(
+					{
+						"doctype": "Item Price",
+						"price_list": price_list,
+						"item_code": self.name,
+						"uom": self.stock_uom,
+						"brand": self.brand,
+						"currency": erpnext.get_default_currency(),
+						"price_list_rate": self.get(field) or 0,
+					}
+				)
+				item_price.save()
+		else:
+			item_price = frappe.get_doc(
+					{
+						"doctype": "Item Price",
+						"price_list": price_list,
+						"item_code": self.name,
+						"uom": self.stock_uom,
+						"brand": self.brand,
+						"currency": erpnext.get_default_currency(),
+						"price_list_rate": self.get(field) or 0,
+					}
+				)
+			item_price.save()
 
 
 @frappe.whitelist()
