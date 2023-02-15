@@ -82,7 +82,20 @@ class CycleWorldItem(Item):
 				self.name = self.item_code
 			
 
-			
+@frappe.whitelist()
+def update_item_price_from_purchase(items):
+	if isinstance(items, str):
+		items = json.loads(items)
+	for i in items:
+		if(i.get('item_code')):
+			item = frappe.get_doc('Item', i.get('item_code'))
+			item.update({
+				'ts_margin':i.get('selling_margin') or 0,
+				'mrp':i.get('mrp') or 0,
+				'standard_buying_cost':i.get('rate'),
+			})
+			item.flags.ignore_permissions = True
+			item.save()
 
 
 def validate(doc, event=None):
@@ -105,9 +118,10 @@ def validate(doc, event=None):
 	insert_prices(doc)
 	
 def insert_prices(doc):
-	add_price(doc, 'standard_rate', 'Standard Selling')
-	add_price(doc, 'standard_buying_cost', 'Standard Buying')
-	add_price(doc, 'mrp', 'MRP')
+	settings = frappe.get_single('Stock Settings')
+	add_price(doc, 'standard_rate', settings.default_selling_pricelist or "Standard Selling")
+	add_price(doc, 'standard_buying_cost', settings.default_buying_pricelist or "Standard Buying")
+	add_price(doc, 'mrp', settings.default_mrp_pricelist or "MRP")
 
 def add_price(self, field=None, price_list=None):
 	"""Add a new price"""
@@ -120,7 +134,6 @@ def add_price(self, field=None, price_list=None):
 		) or frappe.db.get_value("Price List", _("Standard Selling"))
 	if price_list:
 		ip = frappe.get_all('Item Price', {'price_list':price_list, 'item_code':self.name, 'valid_upto':["is","not set"]}, 'name')
-		print(('Item Price', {'price_list':price_list, 'item_code':self.name, 'valid_upto':["is","not set"]}, 'name'))
 		if(ip):
 			exists_doc = frappe.get_doc('Item Price', ip[0].name)
 			if(not self.get(field) or self.get('has_variants')):return
@@ -165,7 +178,6 @@ def get_attributes(template=None):
 def get_link_options(doctype, txt, searchfield, start, page_len, filters):
 	doctype = 'Item Attribute Value'
 	name_field='attribute_value'
-	print(doctype, txt, searchfield, start, page_len, filters)
 	searchfields = ['name', 'attribute_value', 'abbr']
 	fields = ', '.join(searchfields)
 	scond = " or ".join(field + f" like '%{txt}%'" for field in searchfields)
@@ -301,3 +313,17 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 		},
 		as_dict=as_dict,
 	)
+
+def item_price_update(doc,action):
+	for i in doc.items:
+		if(i.get('item_code')):
+			item = frappe.get_doc('Item', i.get('item_code'))
+			purchase_items = frappe.get_doc("Purchase Receipt Item",i.get('purchase_receipt_item'))
+			item.update({
+				'ts_margin':purchase_items.selling_margin or 0,
+				'mrp':purchase_items.mrp or 0,
+				'standard_buying_cost':purchase_items.rate or 0,
+				'transportation_cost':i.get('applicable_charges') or 0
+			})
+			item.flags.ignore_permissions = True
+			item.save()

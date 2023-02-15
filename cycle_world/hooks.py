@@ -128,6 +128,9 @@ doc_events = {
 		'on_submit':'cycle_world.cycle_world.custom.py.purchase_invoice.create_landed_voucher',
 		'on_cancel':'cycle_world.cycle_world.custom.py.purchase_invoice.on_cancel',
 		'on_trash':'cycle_world.cycle_world.custom.py.purchase_invoice.on_trash'
+	},
+	"Landed Cost Voucher":{
+		'on_submit':'cycle_world.cycle_world.custom.py.item.item_price_update'
 	}
 }
 
