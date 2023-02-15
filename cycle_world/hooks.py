@@ -131,6 +131,9 @@ doc_events = {
 	},
 	"Landed Cost Voucher":{
 		'on_submit':'cycle_world.cycle_world.custom.py.item.item_price_update'
+	},
+	"Item Price":{
+		'after_insert':'cycle_world.cycle_world.custom.py.item_price.after_insert'
 	}
 }
 
