@@ -6,7 +6,7 @@ from frappe.model.rename_doc import update_document_title
 from erpnext.stock.doctype.item.item import (Item, update_variants, invalidate_cache_for_item)
 from frappe.utils import strip, now
 from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
-from frappe.model.naming import set_name_by_naming_series
+from frappe.model.naming import set_name_by_naming_series, make_autoname
 
 class CycleWorldItem(Item):
 	def update_variants(self):
@@ -66,6 +66,7 @@ class CycleWorldItem(Item):
 					)
 
 	def autoname(self):
+
 		if frappe.db.get_default("item_naming_by") == "Naming Series":
 			if(self.has_variants):
 				self.name = self.item_code or self.brand or self.item_name
@@ -106,6 +107,14 @@ def validate(doc, event=None):
 			})
 	if(doc.is_new()):
 		autoname(doc, event)
+		last_series = frappe.db.get_value('Item', {'has_variants':0, 'item_code':['like', '%TCW-%']}, 'item_code', order_by='`item_code` desc')
+		frappe.errprint(last_series or 'last_series')
+		if(last_series):
+			counter = int(last_series.lower().split('tcw-')[-1])
+			counter += 1
+			new_series = f"TCW-{'0'*(4-len(str(counter)))}{counter}"
+			doc.item_code = new_series
+	
 		return
 	if(doc.get('dont_save') or not frappe.db.exists('Item', doc.name)):return
 	doc.additional_cost = (doc.get('transportation_cost') or 0) + (doc.get('shipping_cost') or 0) + (doc.get('other_costs') or 0)
@@ -133,7 +142,6 @@ def add_price(self, field=None, price_list=None):
 		) or frappe.db.get_value("Price List", _("Standard Selling"))
 	if price_list:
 		ip = frappe.get_all('Item Price', {'price_list':price_list, 'item_code':self.name, 'valid_upto':["is","not set"]}, 'name')
-		print(('Item Price', {'price_list':price_list, 'item_code':self.name, 'valid_upto':["is","not set"]}, 'name'))
 		if(ip):
 			exists_doc = frappe.get_doc('Item Price', ip[0].name)
 			if(not self.get(field) or self.get('has_variants')):return
@@ -155,7 +163,7 @@ def add_price(self, field=None, price_list=None):
 					}
 				)
 				item_price.save()
-		else:
+		elif(self.get(field)):
 			item_price = frappe.get_doc(
 					{
 						"doctype": "Item Price",
@@ -204,12 +212,12 @@ def set_variant_name_for_manual_creation(doc):
 		return
 	
 	template_ic = doc.variant_of
-	old_ic, old_in = doc.item_code, doc.item_name
+	old_ic, old_in = doc.name, doc.item_name
 	make_variant_item_code(template_ic, template_ic, doc, True)
-	# update_document_title('Item', old_ic, 'item_name', old_in, doc.item_name, doc.item_code, False)
+	update_document_title('Item', old_ic, 'item_name', old_in, doc.item_name, doc.item_name, False)
 	frappe.db.set_value('Item', doc.name, 'item_code', doc.item_code)
 	frappe.db.set_value('Item', doc.name, 'item_name', doc.item_name)
-	return doc.item_code
+	return doc.item_name
 
 
 from frappe import scrub
