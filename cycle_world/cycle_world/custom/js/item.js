@@ -82,7 +82,7 @@ frappe.ui.form.on('Item',{
 				if (locals['Item'] && locals['Item'][docname]){
 					delete locals['Item'][docname];
 				}
-				
+				console.log('reload')
 				frm.reload_doc();
 			}
 		})

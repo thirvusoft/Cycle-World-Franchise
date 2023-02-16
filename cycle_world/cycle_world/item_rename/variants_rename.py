@@ -189,7 +189,7 @@ def check_attributes_existance():
 			frappe.db.set_value('Item Variant Attribute', j, 'cw_name', cw_name)
 
 def update_item_to_naming_series():
-	# frappe.db.sql('''Update `tabSeries` set current= where name="TCW-";''')
+	frappe.db.sql('''Update `tabSeries` set current=2355 where name="TCW-";''')
 	counter = frappe.db.sql("""
 				select current from `tabSeries` where name='TCW-';
 				""")[0][0]
@@ -197,13 +197,14 @@ def update_item_to_naming_series():
 	temp = frappe.db.get_all('Item', filters={'has_variants':1}, pluck='name',order_by='name')
 	print(temp)
 	for i in temp:
-		variants = frappe.db.get_all('Item', filters={'variant_of':i}, order_by='item_name', pluck='name')
+		variants = frappe.db.get_all('Item', filters={'variant_of':i, 'item_code':['not like', '%TCW-%']}, order_by='item_name', pluck='name')
 		print(variants)
 		for j in variants:
 			counter += 1
 			new_in = f"TCW-{'0'*(4-len(str(counter)))}{counter}"
 			print(new_in)
-			doc = frappe.get_doc('Item', j)
-			update_document_title('Item', doc.name, 'item_name', doc.item_name, doc.item_name, new_in)
+			# doc = frappe.get_doc('Item', j)
+			frappe.db.set_value('Item', j, 'item_code', new_in)
+			# update_document_title('Item', doc.name, 'item_name', doc.item_name, doc.item_name, new_in)
 			frappe.db.sql(f'''Update `tabSeries` set current={counter} where name="TCW-";''')
 		frappe.db.commit()
