@@ -21,12 +21,19 @@ class CWItemAttribute(Document):
 			return
 		if(not self.get('from_item_attribute')):
 			doc = frappe.new_doc('Item Attribute Value')
+			idx = frappe.db.get_value('Item Attribute Value', {
+				'parent':self.item_attribute,
+				'parentfield':'item_attribute_values',
+				'parenttype': "Item Attribute",
+			}, 'idx', order_by = 'idx desc') or 0
+			frappe.errprint(idx)
 			doc.update({
 				'parent':self.item_attribute,
 				'parentfield':'item_attribute_values',
 				'parenttype': "Item Attribute",
 				'abbr': self.abbr,
 				'attribute_value': self.attribute_value,
+				'idx':idx+1
 			})
 			doc.save()
 	
