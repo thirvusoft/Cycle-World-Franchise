@@ -161,6 +161,7 @@ def get_link_options(doctype, txt, searchfield, start, page_len, filters):
 def autoname(doc, event):
 	template_ic = doc.variant_of
 	make_variant_item_code(template_ic, template_ic, doc, True)
+	doc.name = doc.item_name
 
 @frappe.whitelist()
 def set_variant_name_for_manual_creation(doc):
@@ -171,12 +172,12 @@ def set_variant_name_for_manual_creation(doc):
 		return
 	
 	template_ic = doc.variant_of
-	old_ic, old_in = doc.item_code, doc.item_name
+	old_ic, old_in = doc.name, doc.item_name
 	make_variant_item_code(template_ic, template_ic, doc, True)
-	# update_document_title('Item', old_ic, 'item_name', old_in, doc.item_name, doc.item_code, False)
+	update_document_title('Item', old_ic, 'item_name', old_in, doc.item_name, doc.item_name, False)
 	frappe.db.set_value('Item', doc.name, 'item_code', doc.item_code)
 	frappe.db.set_value('Item', doc.name, 'item_name', doc.item_name)
-	return doc.item_code
+	return doc.item_name
 
 
 from frappe import scrub

@@ -75,12 +75,13 @@ frappe.ui.form.on('Item',{
 			args:{
 				doc:frm.doc
 			},
+			async:false,
 			callback(r){
-				if(r.message == docname)return
-				// $(document).trigger("rename", ['Item', docname, r.message]);
-				// if (locals['Item'] && locals['Item'][docname]){
-				// 	delete locals['Item'][docname];
-				// }
+				if(r.message.trim() == docname)return
+				$(document).trigger("rename", ['Item', docname, r.message.trim()]);
+				if (locals['Item'] && locals['Item'][docname]){
+					delete locals['Item'][docname];
+				}
 				
 				frm.reload_doc();
 			}
@@ -95,11 +96,17 @@ frappe.ui.form.on('Item',{
 	variant_of(frm){
 		frm.trigger('setup')	
 	},
+	validate(frm){
+		if(frm.doc.has_variants){
+			frm.set_value('item_code', frm.doc.brand_name)
+			frm.set_value('item_name', frm.doc.brand_name)
+		}
+	},
     brand_name: function(frm){
 		// frm.set_value('item_code', frm.doc.brand_name)
 		// frm.set_value('item_name', frm.doc.brand_name)
 		frm.set_value('brand', frm.doc.brand_name)
-		frm.set_value('variant_of', frm.doc.brand_name)
+		// frm.set_value('variant_of', frm.doc.brand_name)
 	},
 	standard_buying_cost(frm){
 		item_price(frm)

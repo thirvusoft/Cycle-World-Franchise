@@ -10,7 +10,8 @@
   "abbr",
   "template",
   "item_attribute",
-  "from_bulk_create"
+  "from_bulk_create",
+  "from_item_attribute"
  ],
  "fields": [
   {
@@ -51,11 +52,18 @@
    "fieldtype": "Check",
    "label": "From Bulk Create",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "from_item_attribute",
+   "fieldtype": "Check",
+   "label": "From Item Attribute",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-01 09:50:20.578323",
+ "modified": "2023-02-15 15:17:24.339532",
  "modified_by": "Administrator",
  "module": "Cycle World",
  "name": "CW Item Attribute",

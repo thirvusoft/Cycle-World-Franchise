@@ -19,15 +19,16 @@ class CWItemAttribute(Document):
 	def after_insert(self):
 		if(self.from_bulk_create):
 			return
-		doc = frappe.new_doc('Item Attribute Value')
-		doc.update({
-			'parent':self.item_attribute,
-			'parentfield':'item_attribute_values',
-			'parenttype': "Item Attribute",
-			'abbr': self.abbr,
-			'attribute_value': self.attribute_value,
-		})
-		doc.save()
+		if(not self.get('from_item_attribute')):
+			doc = frappe.new_doc('Item Attribute Value')
+			doc.update({
+				'parent':self.item_attribute,
+				'parentfield':'item_attribute_values',
+				'parenttype': "Item Attribute",
+				'abbr': self.abbr,
+				'attribute_value': self.attribute_value,
+			})
+			doc.save()
 	
 	def update_cw_attributes(self, changed_values):
 		self.update({

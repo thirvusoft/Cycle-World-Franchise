@@ -9,7 +9,8 @@ def validate(self, event=None):
                 'doctype':'CW Item Attribute',
                 'attribute_value':i.old_value or i.attribute_value,
                 'abbr':i.old_abbr or i.abbr,
-                'item_attribute':self.name
+                'item_attribute':self.name,
+                'from_item_attribute':1
             })
             doc.save()
             i.old_value = i.attribute_value
