@@ -108,7 +108,6 @@ def validate(doc, event=None):
 	if(doc.is_new()):
 		autoname(doc, event)
 		last_series = frappe.db.get_value('Item', {'has_variants':0, 'item_code':['like', '%TCW-%']}, 'item_code', order_by='`item_code` desc')
-		frappe.errprint(last_series or 'last_series')
 		if(last_series):
 			counter = int(last_series.lower().split('tcw-')[-1])
 			counter += 1
@@ -257,8 +256,30 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 		for field in [searchfield or "name", "item_code", "item_group", "item_name"]
 		if not field in searchfields
 	]
-	searchfields = " or ".join([field + " like %(txt)s" for field in searchfields])
+	searchfields1  = searchfields
+	searchfields2 = []
+	# " or ".join([field + " like %(txt)s" for field in searchfields])
+	splitted_txt = txt.split(" ")
+	splitted_txt = [i for i in splitted_txt if(i)]
+	if(not len(splitted_txt)):
+		splitted_txt = ['']
+	for field in searchfields:
+		search_filters = []
 
+		for i in splitted_txt:
+			search_filters.append(field + f" like '{i.replace('%', '').replace('(', '').replace(')', '')}'")
+		search_filters = " and ".join(search_filters)
+		searchfields2.append(f"({search_filters})")
+	searchfields2 = f"({' or '.join(searchfields2)})"
+	b = []
+	# searchfields = " or ".join([field + " like %(txt)s" for field in searchfields1])
+	for field in searchfields1:
+		a=[]
+		for i in splitted_txt:
+			a.append(field + f" like '{i.replace('%', '').replace('(', '').replace(')', '')}'")
+		b.append(f'({" and ".join(a)})')
+
+	searchfields = " or ".join(b)
 	if filters and isinstance(filters, dict):
 		if filters.get("customer") or filters.get("supplier"):
 			party = filters.get("customer") or filters.get("supplier")
@@ -315,7 +336,7 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 		),
 		{
 			"today": nowdate(),
-			"txt": "%%%s%%" % txt,
+			"txt": "%%%s%%" % txt.replace(' ', '%'),
 			"_txt": txt.replace("%", ""),
 			"start": start,
 			"page_len": page_len,
