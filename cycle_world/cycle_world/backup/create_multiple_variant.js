@@ -126,7 +126,9 @@ show_multiple_variants_dialog: function(frm) {
                     doc.attribute_value = (me.multiple_variant_dialog.wrapper[0].querySelector(`[id="${$(ele).find('.control-label')[0].innerText}-search"]`).value || "").toLowerCase().split(' ').join('');
                     doc.abbr = '';
                     frappe.ui.form.make_quick_entry('CW Item Attribute', function(doc){
+                        // attr_dict[doc.item_attribute] = doc.item_attribute;
                         var new_field = document.createElement('div')
+                        new_field.style.marginBottom = "0px";
                         new_field.classList.add('form-group')
                         new_field.classList.add('frappe-control')
                         new_field.classList.add('input-max-width')
@@ -136,11 +138,10 @@ show_multiple_variants_dialog: function(frm) {
                         var search_value = (me.multiple_variant_dialog.wrapper[0].querySelector(`[id="${doc.item_attribute}-search"]`).value || "").toLowerCase().split(' ').join('')
                         var visibility='';
                         if(doc.attribute_value.toLowerCase().split(' ').join('').indexOf(search_value)<0){
-                            visibility='hidden';
+                            visibility=' hidden';
                         }
                         new_field.innerHTML=`
-                        <div class="form-group frappe-control input-max-width" data-fieldtype="Check" data-fieldname="${doc.attribute_value}" title="${doc.attribute_value}" style="margin-bottom: 0px;">
-                        <div class='checkbox ${visibility}'>
+                        <div class='checkbox${visibility}'>
                         <label>
                             <span class="input-area" style="display: inline;">
                                 <input type="checkbox" autocomplete="off" class="input-with-feedback" data-fieldtype="Check" data-fieldname="${doc.attribute_value}" placeholder="">
@@ -152,8 +153,24 @@ show_multiple_variants_dialog: function(frm) {
                         </div>
                         `
                         attr_dict[doc.item_attribute].push(doc.attribute_value)
-                        ele.append(new_field)
-                        document.querySelectorAll(`input[data-fieldname="${doc.attribute_value}"]`)[0].focus();
+                        attr_dict[doc.item_attribute] = attr_dict[doc.item_attribute].sort()
+                        var unselected_attributes = get_unselected_attributes()[doc.item_attribute].sort();
+                        var unselected_elements = [];
+                        var parent = me.multiple_variant_dialog.$wrapper.find(`.${doc.item_attribute.split(' ').join('_')}`)[0].parentElement;
+                        unselected_attributes.forEach((ele)=>{
+                            unselected_elements.push(parent.querySelector(`div[data-fieldname ="${ele}"]`));
+                        })
+                        if(unselected_elements.length){
+                            $(new_field).insertBefore(unselected_elements[0])
+                        }
+                        else{
+                            ele.append(new_field)
+                        }
+
+                        // var parent = me.multiple_variant_dialog.$wrapper.find(`.${doc.item_attribute.split(' ').join('_')}`)[0].parentElement;
+                        onclick_for_input_rearrange(parent, doc.item_attribute, doc.attribute_value);
+                        rearrange(parent, doc.item_attribute, doc.attribute_value);
+                        ele.querySelectorAll(`input[data-fieldname="${doc.attribute_value}"]`)[0].focus();
                     }, undefined, doc)
                 })
             }
@@ -190,9 +207,64 @@ show_multiple_variants_dialog: function(frm) {
             })
         })
     }, 1000);
-         
+    function onclick_for_input_rearrange(parent, key, value){
+        var ele = parent.querySelector(`div[data-fieldname ="${value}"]`)
+        ele.addEventListener('click', ()=>{
+            rearrange(parent, key, value)
+        })
     }
-
+    async function rearrange(parent, key, value){
+        var unselected_attributes = await get_unselected_attributes()[key].sort().reverse();
+            var selected_attributes = await get_selected_attributes()[key].sort().reverse();
+            var selected_elements = [], unselected_elements = [];
+            selected_attributes.forEach((ele)=>{
+                selected_elements.push(parent.querySelector(`div[data-fieldname ="${ele}"]`))
+            })
+            unselected_attributes.forEach((ele)=>{
+                unselected_elements.push(parent.querySelector(`div[data-fieldname ="${ele}"]`))
+            })
+            selected_elements.forEach((ele)=>{
+                var first_input_field = $(parent).find('.form-group.frappe-control.input-max-width')[0] 
+                $(ele).insertBefore(first_input_field)
+            })
+            var cond=''
+            if(selected_attributes.length){
+                cond = `div[data-fieldname ="${selected_attributes[0]}"]`
+            }
+            unselected_elements.forEach((ele, i)=>{
+                if(i==0){
+                    var first_input_field = $(parent).find(`.form-group.frappe-control.input-max-width ${cond}`)[0] 
+                }
+                else{
+                    var first_input_field = $(unselected_elements[i-1])
+                }
+                $(ele).insertBefore(first_input_field)
+            })
+    }
+    setTimeout(()=>{
+        Object.keys(attr_dict).forEach((key)=>{
+            var parent = me.multiple_variant_dialog.$wrapper.find(`.${key.split(' ').join('_')}`)[0].parentElement;
+            attr_dict[key].forEach((value)=>{
+                onclick_for_input_rearrange(parent, key, value)
+            })
+        })
+    },1000)			 
+    }
+    function get_unselected_attributes(){
+        let selected_attributes = {};
+        me.multiple_variant_dialog.$wrapper.find('.form-column').each((i, col) => {
+            if(i===0) return;
+            let attribute_name = $(col).find('label').html().trim();
+            selected_attributes[attribute_name] = [];
+            let checked_opts = $(col).find('.checkbox input');
+            checked_opts.each((i, opt) => {
+                if(!($(opt).is(':checked')) && $(opt).attr('data-fieldname')) {
+                    selected_attributes[attribute_name].push($(opt).attr('data-fieldname'));
+                }
+            });
+        });
+        return selected_attributes;
+    }
     function get_selected_attributes() {
         let selected_attributes = {};
         me.multiple_variant_dialog.$wrapper.find('.form-column').each((i, col) => {
