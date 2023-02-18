@@ -8,7 +8,7 @@ def get_all_template():
 	names = []
 	print(temp)
 	for i in temp:
-		variants = frappe.db.get_all('Item', filters={'variant_of':i}, pluck='name')
+		variants = frappe.db.get_all('Item', filters={'variant_of':i, 'name':['like', '%TCW-%']}, pluck='name')
 		print(variants)
 		for j in variants:
 			doc = frappe.get_doc('Item', j)

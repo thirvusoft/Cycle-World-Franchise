@@ -276,7 +276,7 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 	for field in searchfields1:
 		a=[]
 		for i in splitted_txt:
-			a.append(field + f" like '{i.replace('%', '').replace('(', '').replace(')', '')}'")
+			a.append(field + f" like '%%{i.replace('%', '').replace('(', '').replace(')', '')}%%'")
 		b.append(f'({" and ".join(a)})')
 
 	searchfields = " or ".join(b)

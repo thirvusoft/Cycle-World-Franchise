@@ -33,6 +33,7 @@ app_include_js = "/assets/cycle_world/js/item_quick_entry.js"
 # include js in doctype views
 doctype_js = {
 			"Item" : "cycle_world/custom/js/item.js",
+			"Contact" :"cycle_world/custom/js/contact.js",
 			"Purchase Invoice" : "cycle_world/custom/js/purchase_invoice.js",
 			"Purchase Receipt" : "cycle_world/custom/js/purchase_receipt.js",
 			"Item Attribute" : "cycle_world/custom/js/item_attribute.js",
