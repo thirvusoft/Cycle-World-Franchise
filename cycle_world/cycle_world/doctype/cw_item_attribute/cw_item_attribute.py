@@ -26,14 +26,15 @@ class CWItemAttribute(Document):
 				'parentfield':'item_attribute_values',
 				'parenttype': "Item Attribute",
 			}, 'idx', order_by = 'idx desc') or 0
-			frappe.errprint(idx)
 			doc.update({
 				'parent':self.item_attribute,
 				'parentfield':'item_attribute_values',
 				'parenttype': "Item Attribute",
 				'abbr': self.abbr,
 				'attribute_value': self.attribute_value,
-				'idx':idx+1
+				'idx':idx+1,
+				'old_value':self.attribute_value,
+				'abbr': self.abbr,
 			})
 			doc.save()
 	

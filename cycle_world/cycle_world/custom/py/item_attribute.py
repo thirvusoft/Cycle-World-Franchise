@@ -36,7 +36,7 @@ def validate(self, event=None):
 
     
 @frappe.whitelist()
-def after_save(items):
+def after_save(items = '[]'):
     items = eval(items)
     total = len(items)
     count=0
