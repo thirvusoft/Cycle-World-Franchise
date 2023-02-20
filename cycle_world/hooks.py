@@ -33,11 +33,12 @@ app_include_js = "/assets/cycle_world/js/item_quick_entry.js"
 # include js in doctype views
 doctype_js = {
 			"Item" : "cycle_world/custom/js/item.js",
+			"Contact" :"cycle_world/custom/js/contact.js",
 			"Purchase Invoice" : "cycle_world/custom/js/purchase_invoice.js",
 			"Purchase Receipt" : "cycle_world/custom/js/purchase_receipt.js",
 			"Item Attribute" : "cycle_world/custom/js/item_attribute.js",
 			}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {"Item" : "cycle_world/custom/js/item_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -114,7 +115,7 @@ doc_events = {
 	"Item":{
 		'validate':'cycle_world.cycle_world.custom.py.item.validate',
 		'after_insert':'cycle_world.cycle_world.custom.py.item.validate',
-		# 'autoname':'cycle_world.cycle_world.custom.py.item.autoname'
+		'autoname':'cycle_world.cycle_world.custom.py.item.autoname',
 	},
 	"Item Attribute":{
 		'validate':'cycle_world.cycle_world.custom.py.item_attribute.validate'
@@ -131,6 +132,9 @@ doc_events = {
 	},
 	"Landed Cost Voucher":{
 		'on_submit':'cycle_world.cycle_world.custom.py.item.item_price_update'
+  },
+	"Item Price":{
+		'after_insert':'cycle_world.cycle_world.custom.py.item_price.after_insert'
 	}
 }
 

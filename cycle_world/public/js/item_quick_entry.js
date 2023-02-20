@@ -1,5 +1,5 @@
 frappe.form.link_formatters['Item'] = function(value, doc) {
-	return doc.item_name || ""
+	return doc.item_name || doc.item_code
 }
 
 
