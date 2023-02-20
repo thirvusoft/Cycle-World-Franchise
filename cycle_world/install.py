@@ -141,6 +141,29 @@ def make_custom_fields():
                 'default':'[]',
                 'insert_after':'item_attribute_values'
             },
+        ],
+        'Stock Settings':[
+             {
+                'fieldname':'default_buying_pricelist',
+                'label':'Default Buying Price List',
+                'fieldtype':'Link',
+                'options':'Price List',
+                'insert_after':'naming_series_prefix'
+            },
+            {
+                'fieldname':'default_selling_pricelist',
+                'label':'Default Selling Price List',
+                'fieldtype':'Link',
+                'options':'Price List',
+                'insert_after':'default_buying_pricelist'
+            },
+            {
+                'fieldname':'default_mrp_pricelist',
+                'label':'Default MRP Price List',
+                'fieldtype':'Link',
+                'options':'Price List',
+                'insert_after':'default_selling_pricelist'
+            },
         ]
     }
     create_custom_fields(custom_field)

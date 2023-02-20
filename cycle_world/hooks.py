@@ -37,6 +37,7 @@ doctype_js = {
 			"Purchase Invoice" : "cycle_world/custom/js/purchase_invoice.js",
 			"Purchase Receipt" : "cycle_world/custom/js/purchase_receipt.js",
 			"Item Attribute" : "cycle_world/custom/js/item_attribute.js",
+			"Company":'cycle_world/custom/js/company.js'
 			}
 doctype_list_js = {"Item" : "cycle_world/custom/js/item_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -129,6 +130,9 @@ doc_events = {
 		'on_submit':'cycle_world.cycle_world.custom.py.purchase_invoice.create_landed_voucher',
 		'on_cancel':'cycle_world.cycle_world.custom.py.purchase_invoice.on_cancel',
 		'on_trash':'cycle_world.cycle_world.custom.py.purchase_invoice.on_trash'
+	},
+	"Landed Cost Voucher":{
+		'on_submit':'cycle_world.cycle_world.custom.py.item.item_price_update'
 	},
 	"Item Price":{
 		'after_insert':'cycle_world.cycle_world.custom.py.item_price.after_insert'

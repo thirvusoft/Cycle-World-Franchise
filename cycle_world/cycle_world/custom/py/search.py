@@ -22,7 +22,7 @@ def search_link(
             txt.strip(),
             query,
             searchfield=searchfield,
-            page_length=page_length,
+            page_length=7,
             filters=filters,
             reference_doctype=reference_doctype,
             ignore_user_permissions=ignore_user_permissions,
