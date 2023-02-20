@@ -34,7 +34,7 @@ class CWItemAttribute(Document):
 				'attribute_value': self.attribute_value,
 				'idx':idx+1,
 				'old_value':self.attribute_value,
-				'abbr': self.abbr,
+				'old_abbr': self.abbr,
 			})
 			doc.save()
 	

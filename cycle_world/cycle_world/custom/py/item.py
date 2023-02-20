@@ -201,6 +201,7 @@ def get_link_options(doctype, txt, searchfield, start, page_len, filters):
 def autoname(doc, event):
 	template_ic = doc.variant_of
 	make_variant_item_code(template_ic, template_ic, doc, True)
+	doc.name = doc.item_name
 
 @frappe.whitelist()
 def set_variant_name_for_manual_creation(doc):
