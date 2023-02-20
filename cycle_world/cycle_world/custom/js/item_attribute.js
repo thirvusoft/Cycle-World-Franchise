@@ -59,7 +59,7 @@ frappe.ui.form.on('Item Attribute',{
     before_save:function(frm, cdt, cdn) {
        
         if (cur_frm.is_new()){
-		var table = frm.doc.item_attribute_values;
+		var table = frm.doc.item_attribute_values || [];
         var name = cur_frm.doc.attribute_value
 		
 		for(var i in table) {
@@ -69,10 +69,10 @@ frappe.ui.form.on('Item Attribute',{
 		
 		}
         else{
-            var table = frm.doc.item_attribute_values;
+            var table = frm.doc.item_attribute_values || [];
             var name = cur_frm.doc.name
             for(var i in table) {
-                if (table.abbr == ""){
+                if (i.abbr == ""){
                     abbr =  name + i;
                     frappe.model.set_value(cdt,cdn,"abbr",abbr)
                 }
