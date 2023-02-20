@@ -2,6 +2,7 @@ import frappe
 from cycle_world.cycle_world.custom.py.item import set_variant_name_for_manual_creation
 
 def validate(self, event=None):
+    
     changed_attributes = {}
     for i in self.item_attribute_values:
         if not frappe.db.exists('CW Item Attribute', {'attribute_value':i.old_value, 'item_attribute':self.name, 'abbr':i.old_abbr} or not i.old_value):
