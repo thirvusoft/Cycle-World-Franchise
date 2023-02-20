@@ -31,5 +31,17 @@ frappe.ui.form.on('Item Attribute',{
         cw_names.forEach(cw => {
             frappe.db.delete_doc('CW Item Attribute', cw)
         })
-    }
+    },
+  
+    
   }) 
+  frappe.ui.form.on('Item Attribute Value',{
+    attribute_value:function(frm,cdt,cdn){
+        var data = locals[cdt][cdn]
+        var name= data.attribute_value
+       
+        frappe.model.set_value(cdt,cdn,"abbr",name.at(0) + name.at(-1) )
+
+    }
+
+    })
