@@ -38,10 +38,53 @@ frappe.ui.form.on('Item Attribute',{
   frappe.ui.form.on('Item Attribute Value',{
     attribute_value:function(frm,cdt,cdn){
         var data = locals[cdt][cdn]
-        var name= data.attribute_value
        
-        frappe.model.set_value(cdt,cdn,"abbr",name.at(0) + name.at(-1) )
+        if (cur_frm.is_new()){
+            var name= cur_frm.doc.attribute_name
+            console.log(name)
+            let idx = data.idx;
+            console.log(idx)
+            frappe.model.set_value(cdt,cdn,"abbr",(name || "") + idx )
+            
 
-    }
+        }
+        else{
+            var name= cur_frm.doc.name
+            console.log(name)
+            let idx = data.idx;
+            console.log(idx)
+            frappe.model.set_value(cdt,cdn,"abbr",(name || "") + idx )
+        }
+        
+        
+      
 
+    },
+    before_save:function(frm, cdt, cdn) {
+       
+        if (cur_frm.is_new()){
+		var table = frm.doc.item_attribute_values;
+        var name = cur_frm.doc.attribute_value
+		
+		for(var i in table) {
+			abbr =  name + i;
+            frappe.model.set_value(cdt,cdn,"abbr",abbr)
+		 }
+		
+		}
+        else{
+            var table = frm.doc.item_attribute_values;
+            var name = cur_frm.doc.name
+            for(var i in table) {
+                if (table.abbr == ""){
+                    abbr =  name + i;
+                    frappe.model.set_value(cdt,cdn,"abbr",abbr)
+                }
+               
+            }
+            
+            }
+        }
     })
+
+    
