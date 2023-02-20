@@ -41,18 +41,14 @@ frappe.ui.form.on('Item Attribute',{
        
         if (cur_frm.is_new()){
             var name= cur_frm.doc.attribute_name
-            console.log(name)
             let idx = data.idx;
-            console.log(idx)
             frappe.model.set_value(cdt,cdn,"abbr",(name || "") + idx )
             
 
         }
         else{
             var name= cur_frm.doc.name
-            console.log(name)
             let idx = data.idx;
-            console.log(idx)
             frappe.model.set_value(cdt,cdn,"abbr",(name || "") + idx )
         }
         
