@@ -6,7 +6,7 @@ from frappe.model.rename_doc import update_document_title
 from erpnext.stock.doctype.item.item import (Item, update_variants, invalidate_cache_for_item)
 from frappe.utils import strip, now
 from cycle_world.cycle_world.custom.py.item_variant import make_variant_item_code
-from frappe.model.naming import set_name_by_naming_series
+from frappe.model.naming import set_name_by_naming_series, make_autoname
 
 class CycleWorldItem(Item):
 	def update_variants(self):
@@ -66,6 +66,7 @@ class CycleWorldItem(Item):
 					)
 
 	def autoname(self):
+
 		if frappe.db.get_default("item_naming_by") == "Naming Series":
 			if(self.has_variants):
 				self.name = self.item_code or self.brand or self.item_name
@@ -106,6 +107,13 @@ def validate(doc, event=None):
 			})
 	if(doc.is_new()):
 		autoname(doc, event)
+		last_series = frappe.db.get_value('Item', {'has_variants':0, 'item_code':['like', '%TCW-%']}, 'item_code', order_by='`item_code` desc')
+		if(last_series):
+			counter = int(last_series.lower().split('tcw-')[-1])
+			counter += 1
+			new_series = f"TCW-{'0'*(4-len(str(counter)))}{counter}"
+			doc.item_code = new_series
+	
 		return
 	if(doc.get('dont_save') or not frappe.db.exists('Item', doc.name)):return
 	doc.additional_cost = (doc.get('transportation_cost') or 0) + (doc.get('shipping_cost') or 0) + (doc.get('other_costs') or 0)
@@ -155,7 +163,7 @@ def add_price(self, field=None, price_list=None):
 					}
 				)
 				item_price.save()
-		else:
+		elif(self.get(field)):
 			item_price = frappe.get_doc(
 					{
 						"doctype": "Item Price",
@@ -193,6 +201,7 @@ def get_link_options(doctype, txt, searchfield, start, page_len, filters):
 def autoname(doc, event):
 	template_ic = doc.variant_of
 	make_variant_item_code(template_ic, template_ic, doc, True)
+	doc.name = doc.item_name
 
 @frappe.whitelist()
 def set_variant_name_for_manual_creation(doc):
@@ -203,12 +212,12 @@ def set_variant_name_for_manual_creation(doc):
 		return
 	
 	template_ic = doc.variant_of
-	old_ic, old_in = doc.item_code, doc.item_name
+	old_ic, old_in = doc.name, doc.item_name
 	make_variant_item_code(template_ic, template_ic, doc, True)
-	# update_document_title('Item', old_ic, 'item_name', old_in, doc.item_name, doc.item_code, False)
+	update_document_title('Item', old_ic, 'item_name', old_in, doc.item_name, doc.item_name, False)
 	frappe.db.set_value('Item', doc.name, 'item_code', doc.item_code)
 	frappe.db.set_value('Item', doc.name, 'item_name', doc.item_name)
-	return doc.item_code
+	return doc.item_name
 
 
 from frappe import scrub
@@ -248,8 +257,30 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 		for field in [searchfield or "name", "item_code", "item_group", "item_name"]
 		if not field in searchfields
 	]
-	searchfields = " or ".join([field + " like %(txt)s" for field in searchfields])
+	searchfields1  = searchfields
+	searchfields2 = []
+	# " or ".join([field + " like %(txt)s" for field in searchfields])
+	splitted_txt = txt.split(" ")
+	splitted_txt = [i for i in splitted_txt if(i)]
+	if(not len(splitted_txt)):
+		splitted_txt = ['']
+	for field in searchfields:
+		search_filters = []
 
+		for i in splitted_txt:
+			search_filters.append(field + f" like '{i.replace('%', '').replace('(', '').replace(')', '')}'")
+		search_filters = " and ".join(search_filters)
+		searchfields2.append(f"({search_filters})")
+	searchfields2 = f"({' or '.join(searchfields2)})"
+	b = []
+	# searchfields = " or ".join([field + " like %(txt)s" for field in searchfields1])
+	for field in searchfields1:
+		a=[]
+		for i in splitted_txt:
+			a.append(field + f" like '%%{i.replace('%', '').replace('(', '').replace(')', '')}%%'")
+		b.append(f'({" and ".join(a)})')
+
+	searchfields = " or ".join(b)
 	if filters and isinstance(filters, dict):
 		if filters.get("customer") or filters.get("supplier"):
 			party = filters.get("customer") or filters.get("supplier")
@@ -306,7 +337,7 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 		),
 		{
 			"today": nowdate(),
-			"txt": "%%%s%%" % txt,
+			"txt": "%%%s%%" % txt.replace(' ', '%'),
 			"_txt": txt.replace("%", ""),
 			"start": start,
 			"page_len": page_len,
@@ -315,10 +346,11 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 	)
 
 def item_price_update(doc,action):
+	
 	for i in doc.items:
 		if(i.get('item_code')):
 			item = frappe.get_doc('Item', i.get('item_code'))
-			purchase_items = frappe.get_doc("Purchase Receipt Item",i.get('purchase_receipt_item'))
+			purchase_items = frappe.get_doc(f"{i.receipt_document_type} Item",i.get('purchase_receipt_item'))
 			item.update({
 				'ts_margin':purchase_items.selling_margin or 0,
 				'mrp':purchase_items.mrp or 0,

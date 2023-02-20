@@ -46,6 +46,36 @@ def make_custom_fields():
             'insert_after':'landed_cost_taxes'
             }
         ],
+        'Gate Entry':[
+            {
+            'fieldname':'land_cst_sc_brk',
+            'fieldtype':'Section Break',
+            'insert_after':'disable_rounded_total',
+            'label':'Landed Cost Voucher',
+            'collapsible':1,
+            'collapsible_depends_on':'eval:doc.update_stock',
+            },
+            {
+            'fieldname':'distribute_charges_based_on',
+            'label':'Distribute Charges Based On',
+            'fieldtype':'Select',
+            'options':frappe.get_meta('Landed Cost Voucher').get_field('distribute_charges_based_on').options,
+            'insert_after':'land_cst_sc_brk'
+            },
+            {
+            'fieldname':'landed_cost_taxes',
+            'label':'Landed Cost',
+            'fieldtype':'Table',
+            'options':'Landed Cost Taxes and Charges',
+            'description':'(Additional Cost includes in Item Valuation Rate)',
+            'insert_after':'distribute_charges_based_on'
+            },
+            {
+            'fieldname':'land_cst_sc_brk1',
+            'fieldtype':'Section Break',
+            'insert_after':'landed_cost_taxes'
+            }
+        ],
         'Purchase Receipt':[
             {
             'fieldname':'land_cst_sc_brk',

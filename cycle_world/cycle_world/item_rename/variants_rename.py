@@ -4,64 +4,64 @@ from frappe.utils import cstr, flt
 
 def get_all_template():
 	ig = frappe.db.get_value('Item Attribute', {'is_item_group':1}, 'name')
-	temp = frappe.db.get_all('Item', filters={'has_variants':1, 'name':'G SPORTS'}, pluck='name')
+	temp = frappe.db.get_all('Item', filters={'has_variants':1, }, pluck='name')
 	names = []
 	print(temp)
 	for i in temp:
-		variants = frappe.db.get_all('Item', filters={'variant_of':i}, pluck='name')
+		variants = frappe.db.get_all('Item', filters={'variant_of':i, 'name':['like', '%TCW-%']}, pluck='name')
 		print(variants)
 		for j in variants:
 			doc = frappe.get_doc('Item', j)
 			name = make_variant_item_code(i, i, doc, ig)
 			if name:
 				names.append(name)
+		frappe.db.commit()
 	print(names, len(names))
 	print(list(set(names)), len(list(set(names))))
 
 def make_variant_item_code(template_item_code, template_item_name, variant, item_group):
 	"""Uses template's item code and abbreviations to make variant's item code"""
 
-	attributes = [i.attribute for i in variant.attributes]
-	# if(item_group not in attributes):
-	# 	return
-	print(template_item_code, 'Passed')
-	abbreviations, abbr_for_item_name = [], []
-	for attr in variant.attributes:
-		item_attribute = frappe.db.sql(
-			"""select i.numeric_values, v.abbr, v.attribute_value, i.show_only_abbreviation_in_item_name,i.prefix ,i.suffix
-			from `tabItem Attribute` i left join `tabItem Attribute Value` v
-				on (i.name=v.parent)
-			where i.name=%(attribute)s and (v.attribute_value=%(attribute_value)s or i.numeric_values = 1)""",
-			{"attribute": attr.attribute, "attribute_value": attr.attribute_value},
-			as_dict=True,
-		)
+	# attributes = [i.attribute for i in variant.attributes]
+	# # if(item_group not in attributes):
+	# # 	return
+	# print(template_item_code, 'Passed')
+	# abbreviations, abbr_for_item_name = [], []
+	# for attr in variant.attributes:
+	# 	item_attribute = frappe.db.sql(
+	# 		"""select i.numeric_values, v.abbr, v.attribute_value, i.show_only_abbreviation_in_item_name,i.prefix ,i.suffix
+	# 		from `tabItem Attribute` i left join `tabItem Attribute Value` v
+	# 			on (i.name=v.parent)
+	# 		where i.name=%(attribute)s and (v.attribute_value=%(attribute_value)s or i.numeric_values = 1)""",
+	# 		{"attribute": attr.attribute, "attribute_value": attr.attribute_value},
+	# 		as_dict=True,
+	# 	)
 
-		if not item_attribute:
-			continue
+	# 	if not item_attribute:
+	# 		continue
 			
-		if(attr.attribute != item_group):
-			abbr_or_value = (
-			cstr(attr.attribute_value) if item_attribute[0].numeric_values else (item_attribute[0].prefix or "") + item_attribute[0].abbr + (item_attribute[0].suffix or "")
-			)
-			abbreviations.append(abbr_or_value)
+	# 	if(attr.attribute != item_group):
+	# 		abbr_or_value = (
+	# 		cstr(attr.attribute_value) if item_attribute[0].numeric_values else (item_attribute[0].prefix or "") + item_attribute[0].abbr + (item_attribute[0].suffix or "")
+	# 		)
+	# 		abbreviations.append(abbr_or_value)
 
-			abbr_or_value_item_name = (
-				cstr(attr.attribute_value) if item_attribute[0].numeric_values else  (item_attribute[0].prefix or "" ) + item_attribute[0].attribute_value + (item_attribute[0].suffix or "") if not item_attribute[0].show_only_abbreviation_in_item_name else (item_attribute[0].prefix or "") + item_attribute[0].abbr + (item_attribute[0].suffix or "")
-			)
-			abbr_for_item_name.append(abbr_or_value_item_name)
-		else:
-			variant.update({
-				'item_group':attr.attribute_value
-			})
+	# 		abbr_or_value_item_name = (
+	# 			cstr(attr.attribute_value) if item_attribute[0].numeric_values else  (item_attribute[0].prefix or "" ) + item_attribute[0].attribute_value + (item_attribute[0].suffix or "") if not item_attribute[0].show_only_abbreviation_in_item_name else (item_attribute[0].prefix or "") + item_attribute[0].abbr + (item_attribute[0].suffix or "")
+	# 		)
+	# 		abbr_for_item_name.append(abbr_or_value_item_name)
+	# 	else:
+	# 		variant.update({
+	# 			'item_group':attr.attribute_value
+	# 		})
 
-	new_ic = "{0}{1}".format(template_item_code.replace(" ",'')[:3:], "".join(abbreviations))
-	new_in = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
-	variant.save()
-	# print('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic, variant.variant_of)
-	print(variant.item_name, "||", new_in, "||",variant.item_code, "||", new_ic,'||', variant.item_group)
-	update_document_title('Item', variant.name, 'item_name', variant.item_name, new_in, new_in, new_ic)
-	return new_ic
-	
+	# new_ic = "{0}{1}".format(template_item_code.replace(" ",'')[:3:], "".join(abbreviations))
+	# new_in = "{0} {1}".format(template_item_name, " ".join(abbr_for_item_name))
+	# variant.save()
+	# # print('Item', variant.name, 'item_name', variant.item_name, new_in, new_ic, variant.variant_of)
+	# print(variant.item_name, "||", new_in, "||",variant.item_code, "||", new_ic,'||', variant.item_group)
+	update_document_title('Item', variant.name, 'item_name', variant.item_name, variant.item_name, variant.item_name)
+	return "new_ic"
 	
 
 
@@ -189,7 +189,7 @@ def check_attributes_existance():
 			frappe.db.set_value('Item Variant Attribute', j, 'cw_name', cw_name)
 
 def update_item_to_naming_series():
-	# frappe.db.sql('''Update `tabSeries` set current= where name="TCW-";''')
+	frappe.db.sql('''Update `tabSeries` set current=2355 where name="TCW-";''')
 	counter = frappe.db.sql("""
 				select current from `tabSeries` where name='TCW-';
 				""")[0][0]
@@ -197,13 +197,14 @@ def update_item_to_naming_series():
 	temp = frappe.db.get_all('Item', filters={'has_variants':1}, pluck='name',order_by='name')
 	print(temp)
 	for i in temp:
-		variants = frappe.db.get_all('Item', filters={'variant_of':i}, order_by='item_name', pluck='name')
+		variants = frappe.db.get_all('Item', filters={'variant_of':i, 'item_code':['not like', '%TCW-%']}, order_by='item_name', pluck='name')
 		print(variants)
 		for j in variants:
 			counter += 1
 			new_in = f"TCW-{'0'*(4-len(str(counter)))}{counter}"
 			print(new_in)
-			doc = frappe.get_doc('Item', j)
-			update_document_title('Item', doc.name, 'item_name', doc.item_name, doc.item_name, new_in)
+			# doc = frappe.get_doc('Item', j)
+			frappe.db.set_value('Item', j, 'item_code', new_in)
+			# update_document_title('Item', doc.name, 'item_name', doc.item_name, doc.item_name, new_in)
 			frappe.db.sql(f'''Update `tabSeries` set current={counter} where name="TCW-";''')
 		frappe.db.commit()
