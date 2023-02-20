@@ -126,9 +126,10 @@ def validate(doc, event=None):
 	insert_prices(doc)
 	
 def insert_prices(doc):
-	add_price(doc, 'standard_rate', 'Standard Selling')
-	add_price(doc, 'standard_buying_cost', 'Standard Buying')
-	add_price(doc, 'mrp', 'MRP')
+	settings = frappe.get_single('Stock Settings')
+	add_price(doc, 'standard_rate', settings.default_selling_pricelist or "Standard Selling")
+	add_price(doc, 'standard_buying_cost', settings.default_buying_pricelist or "Standard Buying")
+	add_price(doc, 'mrp', settings.default_mrp_pricelist or "MRP")
 
 def add_price(self, field=None, price_list=None):
 	"""Add a new price"""
@@ -185,7 +186,6 @@ def get_attributes(template=None):
 def get_link_options(doctype, txt, searchfield, start, page_len, filters):
 	doctype = 'Item Attribute Value'
 	name_field='attribute_value'
-	print(doctype, txt, searchfield, start, page_len, filters)
 	searchfields = ['name', 'attribute_value', 'abbr']
 	fields = ', '.join(searchfields)
 	scond = " or ".join(field + f" like '%{txt}%'" for field in searchfields)
@@ -344,3 +344,18 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 		},
 		as_dict=as_dict,
 	)
+
+def item_price_update(doc,action):
+	
+	for i in doc.items:
+		if(i.get('item_code')):
+			item = frappe.get_doc('Item', i.get('item_code'))
+			purchase_items = frappe.get_doc(f"{i.receipt_document_type} Item",i.get('purchase_receipt_item'))
+			item.update({
+				'ts_margin':purchase_items.selling_margin or 0,
+				'mrp':purchase_items.mrp or 0,
+				'standard_buying_cost':purchase_items.rate or 0,
+				'transportation_cost':i.get('applicable_charges') or 0
+			})
+			item.flags.ignore_permissions = True
+			item.save()
