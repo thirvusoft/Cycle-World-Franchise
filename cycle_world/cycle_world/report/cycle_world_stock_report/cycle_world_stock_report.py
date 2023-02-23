@@ -50,6 +50,18 @@ def get_columns():
 			'fieldtype':'Currency',
 			'width':100,
 		},
+  {
+			'fieldname':'margin',
+			'label':'Margin',
+			'fieldtype':'Currency',
+			'width':100,
+		},
+  {
+			'fieldname':'discount',
+			'label':'Discount',
+			'fieldtype':'Currency',
+			'width':100,
+		},
 	]
 	return columns
 def get_data():
@@ -60,6 +72,7 @@ def get_data():
 		if(ig != 'BICYCLES'):
 			data.append({'item_group':ig, 'indent':0, 'is_bold':1})
 			sub_groups = get_all_sub_group(ig)
+			print(sub_groups)
 			# frappe.errprint(sub_groups)
 			items = frappe.db.get_all('Item', filters={'item_group':['in', sub_groups]}, fields=['name as item', 'standard_rate', 'mrp',])
 			for i in items:
@@ -99,9 +112,10 @@ def get_data():
 					# """, as_dict = 1)
 					# tot_bic += items
 					# frappe.errprint(len(tot_bic))
-					items = frappe.db.get_all('Item', filters={'name':['in', sized_items]}, fields=['name as item', 'standard_rate', 'mrp',])
+					items = frappe.db.get_all('Item', filters={'name':['in', sized_items]}, fields=['name as item', 'standard_rate', 'mrp','ts_margin'])
 					for i in items:
-						i['indent']=3
+						print(i)
+						i['indent']=4
 					data.extend(items)
 
 	# frappe.errprint(len(tot_bic))	
