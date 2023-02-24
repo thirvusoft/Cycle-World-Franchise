@@ -4,7 +4,13 @@
 
 frappe.query_reports["test"] = {
 	"filters": [
-
+		{
+		"fieldname":"filter",
+		"label": ("Select Brand or Size"),
+		"fieldtype": "Select",
+		"options": "\nBrand\nSize",
+		// "default": "Completed"
+		}
 	],
 	"formatter":function(value, row, column, data, default_formatter) {
 		// console.log(value, row, column, data, default_formatter)
