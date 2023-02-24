@@ -1,138 +1,289 @@
-# Copyright (c) 2023, Thirvusoft and contributors
-# For license information, please see license.txt
-
 import frappe
 
-BICYCLE_HIERARCHY = {'Brand', 'WHEEL SIZE'}
+
 
 def execute(filters=None):
-	columns, data = get_columns() or [], get_data() or []
-	return columns, data
-
-
-
-def get_columns():
-	columns = [
-		{
-			'fieldname':'item_group',
-			'label':'Item Group',
-			'fieldtype':'Data',
-			'width':150
-		},
-		{
-			'fieldname':'size',
-			'label':'Size',
-			'fieldtype':'Data',
-			'width':100
-		},
-		{
-			'fieldname':'brand',
-			'label':'Brand',
-			'fieldtype':'Data',
-			'width':100
-		},
-		{
-			'fieldname':'item',
-			'label':'Item',
-			'fieldtype':'Link',
-			'width':300,
-			'options':'Item'
-		},
-		{
-			'fieldname':'standard_rate',
-			'label':'Standard Selling',
-			'fieldtype':'Currency',
-			'width':100,
-		},
-		{
-			'fieldname':'mrp',
-			'label':'MRP',
-			'fieldtype':'Currency',
-			'width':100,
-		},
-  {
-			'fieldname':'margin',
-			'label':'Margin',
-			'fieldtype':'Currency',
-			'width':100,
-		},
-  {
-			'fieldname':'discount',
-			'label':'Discount',
-			'fieldtype':'Currency',
-			'width':100,
-		},
-	]
-	return columns
-def get_data():
-	data = []
-	item_group = get_all_item_group()
-	tot_bic = []
-	for ig in item_group:
-		if(ig != 'BICYCLES'):
-			data.append({'item_group':ig, 'indent':0, 'is_bold':1})
-			sub_groups = get_all_sub_group(ig)
-			print(sub_groups)
-			# frappe.errprint(sub_groups)
-			items = frappe.db.get_all('Item', filters={'item_group':['in', sub_groups]}, fields=['name as item', 'standard_rate', 'mrp',])
-			for i in items:
-				i['indent']=1
-			data.extend(items)
-		else:
-			data.append({'item_group':ig, 'indent':0, 'is_bold':1})
-			brands = frappe.db.get_all('Brand', pluck='name', order_by='name')
-			sizes = frappe.db.get_all('Item Attribute Value', filters={'parent':'WHEEL SIZE'}, pluck='attribute_value', order_by='name')
-			for size in sizes:
-				data.append({'size':size, 'indent':1, 'is_bold':1})
-				for brand in brands:
-					data.append({'brand':brand, 'indent':2, 'is_bold':1})
-					branded_items = frappe.db.get_all('Item', filters={'brand_name':brand, 'has_variants':0}, pluck='name')
-					# branded_items = frappe.db.sql(f"""
-					# 				SELECT name 
-					# 				FROM `tabItem`
-					# 				WHERE brand_name='{brand}' and 
-					# 					  has_variants = 0
-					# """, as_list=1)
-					# branded_items=[j for i in branded_items for j in i]
-					# print(branded_items, brand)
-					# frappe.errprint(branded_items)
-					sized_items = frappe.db.get_all('Item Variant Attribute', filters={'attribute':'WHEEL SIZE', 'attribute_value':size, 'parent':['in', branded_items]}, pluck='parent')
-					# cond = ''
-					# if(len(branded_items) == 1):
-					# 	cond = f" and att.parent = '{branded_items[0]}'"
-					# elif(len(branded_items)>1):
-					# 	cond = f" and att.parent in {tuple(branded_items)}"
-					# items = frappe.db.sql(f"""
-					# 				SELECT it.name as item, it.standard_rate, it.mrp
-					# 				FROM `tabItem` it
-					# 				LEFT JOIN
-					# 				`tabItem Variant Attribute` att ON att.parent=it.name
-					# 				WHERE att.attribute = "WHEEL SIZE" and att.attribute_value = "{size}" {cond}
-
-					# """, as_dict = 1)
-					# tot_bic += items
-					# frappe.errprint(len(tot_bic))
-					items = frappe.db.get_all('Item', filters={'name':['in', sized_items]}, fields=['name as item', 'standard_rate', 'mrp','ts_margin'])
-					for i in items:
-						print(i)
-						i['indent']=4
-					data.extend(items)
-
-	# frappe.errprint(len(tot_bic))	
-	# frappe.errprint(tot_bic)
-	# frappe.errprint(len(list(set(tot_bic))))
-	return data
-
-def get_all_item_group():
-	group = frappe.db.get_all('Item Group', filters={'parent_item_group':'All Item Groups', 'is_group':1}, pluck='name')
-	return group
-
-def get_all_sub_group(parent_group):
-	sub_groups = []
-	parents = [parent_group]
-	for i in parents:
-		# frappe.errprint(i)
-		curr_parents = frappe.db.get_all('Item Group', filters={'parent_item_group':i, 'is_group':1}, pluck='name')
-		sub_groups.extend(frappe.db.get_all('Item Group', filters={'parent_item_group':i, 'is_group':0}, pluck='name'))
-		parents.extend(curr_parents)
-	return sub_groups
+  
+    columns = [
+        {
+            "label": ("Item Group"),
+            "fieldname": "item_group",
+            "fieldtype": "Data",
+            "width": 500
+        },
+        {
+            "label": ("Available Stock"),
+            "fieldname": "available_stock",
+            "fieldtype": "Data",
+            "width": 150
+        },
+         {
+            "label": ("Standard Buying Cost"),
+            "fieldname": "st_buying_cost",
+            "fieldtype": "Data",
+            "width": 150
+        },
+          {
+            "label": ("MRP"),
+            "fieldname": "mrp",
+            "fieldtype": "Data",
+            "width": 150
+        },
+      
+    ]
+    
+    data = []
+    check=2
+    if filters.get("warehouse"):
+        warehouse_filter=filters.get("warehouse")
+		
+    item_groups = frappe.get_all('Item Group', filters={'parent_item_group':'All Item Groups', 'is_group':1}, fields=['name'])
+    for item_group in item_groups:
+        
+        if item_group["name"] != 'BICYCLES':
+            item_group_row = {
+                "item_group": item_group.name,
+                    "indent" : 0,
+                   
+                
+            }
+            data.append(item_group_row)
+            
+            
+            parents = [item_group.name]
+            for i in parents:
+            
+                curr_parents = frappe.db.get_all('Item Group', filters={'parent_item_group':i, 'is_group':1}, pluck='name')
+                sub = frappe.db.get_all('Item Group', filters={'parent_item_group':i, 'is_group':0}, pluck='name')
+                
+                
+                
+            if curr_parents:
+                
+                for j in curr_parents:
+                    
+                    item_group_row = {
+                "item_group": j,
+                    "indent" : 1
+                
+                }
+                    data.append(item_group_row)
+                    
+                    
+                            
+                    sub1=frappe.db.get_all('Item Group', filters={'parent_item_group':j, 'is_group':0}, pluck='name',order_by="name asc")
+                    sub2=frappe.db.get_all('Item Group', filters={'parent_item_group':j, 'is_group':1}, pluck='name',order_by="name asc")
+                    if sub1:
+                        
+                        for k in sub1:
+                            items = frappe.db.get_all('Item', filters={'item_group':k}, fields=['name as item', 'standard_rate', 'mrp',])
+                         
+                            item_group_row = {
+                        "item_group": k,
+                        "indent" : 2
+                    
+                        }
+                            data.append(item_group_row)
+                            for v in items:
+                                bin_list=frappe.db.sql(
+		"""select actual_qty from `tabBin`
+		where item_code = %s and warehouse = %s
+		limit 1""",
+		( v["item"], filters.get("warehouse")),
+	as_dict=1
+	)
+                                print("binnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
+                                print(bin_list)
+                                if bin_list:
+                                    item_group_row = {
+                                    "item_group": v["item"],
+                                    "item":"",
+                                    "available_stock":bin_list[0]["actual_qty"],
+                                    "st_buying_cost":v["standard_rate"],
+                                    "mrp":v["mrp"],
+                                    
+                                    "indent" : 3
+                                
+                                    }
+                                    data.append(item_group_row)
+                                else:
+                                    item_group_row = {
+                                    "item_group": v["item"],
+                                    "item":"",
+                                    "available_stock":"",
+                                    "st_buying_cost":v["standard_rate"],
+                                    "mrp":v["mrp"],
+                                    
+                                    "indent" : 3
+                                
+                                    }
+                                    data.append(item_group_row)
+                                    
+                    if sub2:
+                            for l in sub2:
+                                item_group_row = {
+                            "item_group": l,
+                            "indent" : 2
+                        
+                            }
+                                data.append(item_group_row)
+                                sub3=frappe.db.get_all('Item Group', filters={'parent_item_group':l, 'is_group':0}, pluck='name', order_by="name asc")
+                            
+            
+                
+                                if sub3:
+                                    for m in sub3:
+                                        item_group_row = {
+                                    "item_group": m,
+                                    "indent" : 3
+                                
+                                    }
+                                        data.append(item_group_row)
+                                        
+                                    
+                        
+                        
+            if sub:
+                    for j in sub:
+                        items = frappe.db.get_all('Item', filters={'item_group':j}, fields=['name as item', 'standard_rate', 'mrp',])
+                        item_group_row = {
+                    "item_group": j,
+                    
+                        "indent" : 1}
+                        data.append(item_group_row)
+                        for v in items:
+                            item_group_row = {
+                        "item_group": v["item"],
+                        "item":"",
+                        "st_buying_cost":v["standard_rate"],
+                        "mrp":v["mrp"],
+                        
+                        "indent" : 2
+                    
+                        }
+                            data.append(item_group_row)
+                            
+                    
+            else:
+                # if this is a child item group
+                
+                item_group_row['indent'] = 0
+                # data.append(item_group_row)
+        else:
+            if filters.get('filter') == "Brand":
+                check=0
+            if filters.get('filter') == "Size":
+                check=1
+            item_group_row = {
+                "item_group": item_group.name,
+                    "indent" : 0
+                
+            }
+            data.append(item_group_row)
+            
+            if check==0:
+                brands = frappe.db.get_all('Brand', pluck='name', order_by='name asc')
+                for brand in brands:
+                    # data.append({'brand':brand, 'indent':2, 'is_bold':1})
+                    branded_items = frappe.db.get_all('Item', filters={'brand_name':brand, 'has_variants':0}, pluck='name')
+                    # for i in branded_items:
+                    items = frappe.db.get_all('Item', filters={'brand_name':brand, 'has_variants':0}, fields=['name as item', 'standard_rate','mrp'])
+                    item_group_row = {
+                    "item_group": brand,
+                    "item":"",
+                    "st_buying_cost":"",
+                    "mrp":"",
+                    
+                    "indent" : 1
+                
+                    }
+                    data.append(item_group_row)
+                    for v in items:
+                        bin_list=frappe.db.sql(
+		"""select actual_qty from `tabBin`
+		where item_code = %s and warehouse = %s
+		limit 1""",
+		( v["item"],filters.get("warehouse")),
+	as_dict=1
+	)
+                        if bin_list:
+                            item_group_row = {
+                            "item_group": v["item"],
+                            "item":"",
+                            "available_stock":bin_list[0]["actual_qty"],
+                            "st_buying_cost":v["standard_rate"],
+                            "mrp":v["mrp"],
+                            
+                            "indent" : 2
+                        
+                            }
+                            data.append(item_group_row)
+                        else:
+                            item_group_row = {
+                            "item_group": v["item"],
+                            "item":"",
+                            "available_stock":"",
+                            "st_buying_cost":v["standard_rate"],
+                            "mrp":v["mrp"],
+                            
+                            "indent" : 2
+                        
+                            }
+                            data.append(item_group_row)
+                            
+            if check==1:
+                sizes = frappe.db.get_all('Item Attribute Value', filters={'parent':filters.get("hierarchy")}, pluck='attribute_value', order_by='attribute_value')
+                for size in sizes:
+                    item_group_row = {
+                        "item_group":size,
+                        "item":"",
+                        "st_buying_cost":"",
+                        "mrp":"",
+                        
+                        "indent" : 1
+                    
+                        }
+                    data.append(item_group_row)
+                    
+                    sized_items = frappe.db.get_all('Item Variant Attribute', filters={'attribute':filters.get("hierarchy"), 'attribute_value':size, }, pluck='parent')
+                    for v in sized_items:
+                        items = frappe.db.get_all('Item', filters={'name': v}, fields=['name as item', 'standard_rate', 'mrp'])
+                        for j in items:
+                            bin_list=frappe.db.sql(
+		"""select actual_qty from `tabBin`
+		where item_code = %s and warehouse = %s
+		limit 1""",
+		( j["item"], filters.get("warehouse")),
+	as_dict=1
+	)
+                            if bin_list:
+                                
+                                item_group_row = {
+                            "item_group": j["item"],
+                            "item":"",
+                            "available_stock":bin_list[0]["actual_qty"],
+                            "st_buying_cost":j["standard_rate"],
+                            "mrp":j["mrp"],
+                            
+                            "indent" : 2
+                        
+                            }
+                                data.append(item_group_row)
+                            else:
+                                item_group_row = {
+                            "item_group": j["item"],
+                            "item":"",
+                            "available_stock":"",
+                            "st_buying_cost":j["standard_rate"],
+                            "mrp":j["mrp"],
+                            
+                            "indent" : 2
+                        
+                            }
+                                data.append(item_group_row)
+                                
+                                
+                        
+       
+    
+    return columns, data
