@@ -77,7 +77,10 @@ frappe.ui.form.on('Item',{
 			},
 			async:false,
 			callback(r){
-				if(r.message.trim() == docname)return
+				if(r.message.trim() == docname){
+					frm.reload_doc()
+					return
+				}
 				$(document).trigger("rename", ['Item', docname, r.message.trim()]);
 				if (locals['Item'] && locals['Item'][docname]){
 					delete locals['Item'][docname];

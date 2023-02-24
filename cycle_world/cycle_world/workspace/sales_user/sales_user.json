@@ -13,8 +13,8 @@
  "is_standard": 1,
  "label": "SALES USER",
  "links": [],
- "modified": "2023-01-27 17:56:43.554690",
- "modified_by": "sabithakrishnasamy@cycleworld.in",
+ "modified": "2023-02-20 14:46:42.481909",
+ "modified_by": "Administrator",
  "module": "Cycle World",
  "name": "SALES USER",
  "owner": "Administrator",
@@ -23,7 +23,7 @@
  "shortcuts": [
   {
    "doc_view": "",
-   "label": "THIRVU RETAIL",
+   "label": "THIRVU POS",
    "link_to": "posapp",
    "type": "Page"
   }
