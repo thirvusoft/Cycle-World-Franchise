@@ -93,8 +93,7 @@ def execute(filters=None):
 		( v["item"], filters.get("warehouse")),
 	as_dict=1
 	)
-                                print("binnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
-                                print(bin_list)
+                               
                                 if bin_list:
                                     item_group_row = {
                                     "item_group": v["item"],
