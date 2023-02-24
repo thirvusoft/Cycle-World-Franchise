@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "columns": [],
  "creation": "2023-02-22 12:02:19.642661",
  "disable_prepared_report": 0,
@@ -9,7 +9,7 @@
  "filters": [],
  "idx": 0,
  "is_standard": "Yes",
- "modified": "2023-02-22 12:02:19.642661",
+ "modified": "2023-02-24 18:04:19.885497",
  "modified_by": "Administrator",
  "module": "Cycle World",
  "name": "Cycle World Stock Report",

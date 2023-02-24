@@ -6,6 +6,7 @@ def execute(filters=None):
   
     columns = [
         {
+    
             "label": ("Item Group"),
             "fieldname": "item_group",
             "fieldtype": "Data",
@@ -38,11 +39,13 @@ def execute(filters=None):
         warehouse_filter=filters.get("warehouse")
 		
     item_groups = frappe.get_all('Item Group', filters={'parent_item_group':'All Item Groups', 'is_group':1}, fields=['name'])
+    # item_groups = frappe._dict()
+    # item_groups['name'] = 'BICYCLES'
     for item_group in item_groups:
         
         if item_group["name"] != 'BICYCLES':
             item_group_row = {
-                "item_group": item_group.name,
+                "item_group": f"""<b>{item_group.name}</b>""",
                     "indent" : 0,
                    
                 
@@ -61,9 +64,15 @@ def execute(filters=None):
             if curr_parents:
                 
                 for j in curr_parents:
-                    
+    #                 frappe.db.sql(
+	# 	"""select sum(opening_stock) from `tabItem`
+	# 	where item_code = %s 
+	# 	limit 1""",
+	# 	(j),
+	# as_dict=1
+	# )
                     item_group_row = {
-                "item_group": j,
+                "item_group": f"""<b>{j}</b>""",
                     "indent" : 1
                 
                 }
@@ -76,10 +85,11 @@ def execute(filters=None):
                     if sub1:
                         
                         for k in sub1:
+                       
                             items = frappe.db.get_all('Item', filters={'item_group':k}, fields=['name as item', 'standard_rate', 'mrp',])
                          
                             item_group_row = {
-                        "item_group": k,
+                        "item_group": f"""<b>{k}</b>""",
                         "indent" : 2
                     
                         }
@@ -92,8 +102,7 @@ def execute(filters=None):
 		( v["item"], filters.get("warehouse")),
 	as_dict=1
 	)
-                                print("binnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
-                                print(bin_list)
+                              
                                 if bin_list:
                                     item_group_row = {
                                     "item_group": v["item"],
@@ -122,13 +131,14 @@ def execute(filters=None):
                     if sub2:
                             for l in sub2:
                                 item_group_row = {
-                            "item_group": l,
+                            "item_group": f"""<b>{l}</b>""",
                             "indent" : 2
                         
                             }
                                 data.append(item_group_row)
                                 sub3=frappe.db.get_all('Item Group', filters={'parent_item_group':l, 'is_group':0}, pluck='name', order_by="name asc")
-                            
+                                print("sub")
+                                print(sub3)
             
                 
                                 if sub3:
@@ -147,7 +157,7 @@ def execute(filters=None):
                     for j in sub:
                         items = frappe.db.get_all('Item', filters={'item_group':j}, fields=['name as item', 'standard_rate', 'mrp',])
                         item_group_row = {
-                    "item_group": j,
+                    "item_group": f"""<b>{j}</b>""",
                     
                         "indent" : 1}
                         data.append(item_group_row)
@@ -175,7 +185,7 @@ def execute(filters=None):
             if filters.get('filter') == "Size":
                 check=1
             item_group_row = {
-                "item_group": item_group.name,
+               "item_group": f"""<b>{item_group.name}</b>""",
                     "indent" : 0
                 
             }
@@ -235,7 +245,7 @@ def execute(filters=None):
                 sizes = frappe.db.get_all('Item Attribute Value', filters={'parent':filters.get("hierarchy")}, pluck='attribute_value', order_by='attribute_value')
                 for size in sizes:
                     item_group_row = {
-                        "item_group":size,
+                        "item_group":f"""<b>{size}</b>""",
                         "item":"",
                         "st_buying_cost":"",
                         "mrp":"",
@@ -284,6 +294,42 @@ def execute(filters=None):
                                 
                                 
                         
-       
+    for i in range(2,-1,-1):
+        print(i)
+        index=0
+        sum=None
+        
+        for j in range(len(data)):
+            if data[j]["indent"]==i:
+                
+                index=j 
+                frappe.errprint(f"{index}-index-{i}-i")
+                # sum=0
+                
+                for k in range(j+1,len(data)):
+                    if(i==1):
+                        frappe.errprint(data[k]["indent"])
+                    if data[k]["indent"]==i+1:
+                        sum= (sum or 0) + (data[k].get("available_stock") or 0)
+                        if(i==1):
+                            frappe.errprint(f'{data[k]["indent"]}-{j+1}-{index}-{sum}-i-{i}')
+                        
+                       
+                       
+                    elif(data[k]["indent"]==i):
+                        if(sum):
+                            data[index]["available_stock"]=sum
+                        
+                        print(index,sum)
+                        sum=None
+                        if(i==1):
+                            frappe.errprint("-----------------------")
+                        break
+                        
+                        
+                        
+            
+            
+        
     
     return columns, data
