@@ -37,7 +37,8 @@ doctype_js = {
 			"Purchase Invoice" : "cycle_world/custom/js/purchase_invoice.js",
 			"Purchase Receipt" : "cycle_world/custom/js/purchase_receipt.js",
 			"Item Attribute" : "cycle_world/custom/js/item_attribute.js",
-			"Company":'cycle_world/custom/js/company.js'
+			"Company":'cycle_world/custom/js/company.js',
+            "Stock Reconciliation":"cycle_world/item_rename/stock_reconciliation.js"
 			}
 doctype_list_js = {"Item" : "cycle_world/custom/js/item_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

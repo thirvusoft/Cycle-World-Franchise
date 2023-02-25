@@ -208,3 +208,17 @@ def update_item_to_naming_series():
 			# update_document_title('Item', doc.name, 'item_name', doc.item_name, doc.item_name, new_in)
 			frappe.db.sql(f'''Update `tabSeries` set current={counter} where name="TCW-";''')
 		frappe.db.commit()
+
+import json
+
+@frappe.whitelist()
+def get_item_name_based_on_item_code(doc):
+	doc = json.loads(doc)
+	items = []
+	for i in doc['items']:
+		i['item_code'] = frappe.db.get_value('Item', {'item_code':i['ic']}, 'name')
+		frappe.errprint(i['item_code'])
+		items.append({'item_code':i['item_code'], 'ic':i['ic'], 'warehouse':'Stores - TCW', 'qty':i['qty']})
+	frappe.errprint(items)
+	return items
+	
