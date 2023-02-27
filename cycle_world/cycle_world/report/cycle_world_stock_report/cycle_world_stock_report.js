@@ -29,6 +29,7 @@ frappe.query_reports["Cycle World Stock Report"] = {
 			// "default": "Completed"
 			}
 	],
+	"initial_depth":0,
 	"formatter":function(value, row, column, data, default_formatter) {
 		// console.log(value, row, column, data, default_formatter)
 		return default_formatter(value, row, column, data)

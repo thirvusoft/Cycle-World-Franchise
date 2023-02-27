@@ -13,7 +13,7 @@
  "is_standard": 1,
  "label": "Inventory",
  "links": [],
- "modified": "2023-01-24 12:00:36.527987",
+ "modified": "2023-02-25 13:17:59.348732",
  "modified_by": "Administrator",
  "module": "Cycle World",
  "name": "Inventory",
@@ -68,6 +68,12 @@
    "label": "Item Price",
    "link_to": "Item Price",
    "type": "DocType"
+  },
+  {
+   "doc_view": "Report Builder",
+   "label": "Stock Report",
+   "link_to": "Cycle World Stock Report",
+   "type": "Report"
   }
  ]
 }

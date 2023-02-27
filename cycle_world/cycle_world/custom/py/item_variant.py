@@ -49,6 +49,14 @@ def create_multiple_variants(item, args):
 	if(args.get(item_group_attribute)):
 		if(len(args[item_group_attribute])):
 			item_group = args[item_group_attribute][0]
+			if(not frappe.db.exists('Item Group', item_group)):
+				ig = frappe.new_doc('Item Group')
+				ig.update({
+					'item_group_name':item_group,
+					'parent_item_group':'BICYCLES'
+				})
+				ig.flags.ignore_permissions = True
+				ig.insert()
 		del args[item_group_attribute]
 	args_set = generate_keyed_value_combinations(args)
 	for attribute_values in args_set:
