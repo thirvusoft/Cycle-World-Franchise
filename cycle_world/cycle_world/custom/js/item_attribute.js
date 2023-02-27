@@ -31,5 +31,56 @@ frappe.ui.form.on('Item Attribute',{
         cw_names.forEach(cw => {
             frappe.db.delete_doc('CW Item Attribute', cw)
         })
-    }
+    },
+  
+    
   }) 
+  frappe.ui.form.on('Item Attribute Value',{
+    attribute_value:function(frm,cdt,cdn){
+        var data = locals[cdt][cdn]
+       
+        if (cur_frm.is_new()){
+            var name= cur_frm.doc.attribute_name
+            let idx = data.idx;
+            frappe.model.set_value(cdt,cdn,"abbr",(name || "") + idx )
+            
+
+        }
+        else{
+            var name= cur_frm.doc.name
+            let idx = data.idx;
+            frappe.model.set_value(cdt,cdn,"abbr",(name || "") + idx )
+        }
+        
+        
+      
+
+    },
+    before_save:function(frm, cdt, cdn) {
+       
+        if (cur_frm.is_new()){
+		var table = frm.doc.item_attribute_values || [];
+        var name = cur_frm.doc.attribute_value
+		
+		for(var i in table) {
+			abbr =  name + i;
+            frappe.model.set_value(cdt,cdn,"abbr",abbr)
+		 }
+		
+		}
+        else{
+            var table = frm.doc.item_attribute_values || [];
+            var name = cur_frm.doc.name
+            for(var i in table) {
+                if (i.abbr == ""){
+                    abbr =  name + i;
+                    frappe.model.set_value(cdt,cdn,"abbr",abbr)
+                }
+               
+            }
+            
+            }
+        }
+    })
+
+    
