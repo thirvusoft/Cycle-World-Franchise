@@ -15,7 +15,13 @@ def execute(filters=None):
         {
             "label": ("Available Stock"),
             "fieldname": "available_stock",
-            "fieldtype": "Data",
+            "fieldtype": "Float",
+            "width": 150
+        },
+        {
+            "label": ("Available Stock Value"),
+            "fieldname": "available_stock_value",
+            "fieldtype": "Float",
             "width": 150
         },
          {
@@ -96,7 +102,7 @@ def execute(filters=None):
                             data.append(item_group_row)
                             for v in items:
                                 bin_list=frappe.db.sql(
-		"""select actual_qty from `tabBin`
+		"""select actual_qty,stock_value from `tabBin`
 		where item_code = %s and warehouse = %s
 		limit 1""",
 		( v["item"], filters.get("warehouse")),
@@ -109,6 +115,7 @@ def execute(filters=None):
                                     "item":"",
                                     "available_stock":bin_list[0]["actual_qty"],
                                     "st_buying_cost":v["standard_rate"],
+                                    "available_stock_value":bin_list[0]["stock_value"],
                                     "mrp":v["mrp"],
                                     
                                     "indent" : 3
@@ -120,6 +127,7 @@ def execute(filters=None):
                                     "item_group": v["item"],
                                     "item":"",
                                     "available_stock":"",
+                                    "available_stock_value":"",
                                     "st_buying_cost":v["standard_rate"],
                                     "mrp":v["mrp"],
                                     
@@ -210,7 +218,7 @@ def execute(filters=None):
                     data.append(item_group_row)
                     for v in items:
                         bin_list=frappe.db.sql(
-		"""select actual_qty from `tabBin`
+		"""select actual_qty,stock_value from `tabBin`
 		where item_code = %s and warehouse = %s
 		limit 1""",
 		( v["item"],filters.get("warehouse")),
@@ -222,6 +230,7 @@ def execute(filters=None):
                             "item":"",
                             "available_stock":bin_list[0]["actual_qty"],
                             "st_buying_cost":v["standard_rate"],
+                            "available_stock_value":bin_list[0]["stock_value"],
                             "mrp":v["mrp"],
                             
                             "indent" : 2
@@ -233,6 +242,7 @@ def execute(filters=None):
                             "item_group": v["item"],
                             "item":"",
                             "available_stock":"",
+                            "available_stock_value":"",
                             "st_buying_cost":v["standard_rate"],
                             "mrp":v["mrp"],
                             
@@ -260,7 +270,7 @@ def execute(filters=None):
                         items = frappe.db.get_all('Item', filters={'name': v}, fields=['name as item', 'standard_rate', 'mrp'])
                         for j in items:
                             bin_list=frappe.db.sql(
-		"""select actual_qty from `tabBin`
+		"""select actual_qty,stock_value from `tabBin`
 		where item_code = %s and warehouse = %s
 		limit 1""",
 		( j["item"], filters.get("warehouse")),
@@ -272,6 +282,7 @@ def execute(filters=None):
                             "item_group": j["item"],
                             "item":"",
                             "available_stock":bin_list[0]["actual_qty"],
+                            "available_stock_value":bin_list[0]["stock_value"],
                             "st_buying_cost":j["standard_rate"],
                             "mrp":j["mrp"],
                             
@@ -294,42 +305,28 @@ def execute(filters=None):
                                 
                                 
                         
+    
+                       
     for i in range(2,-1,-1):
-        print(i)
         index=0
-        sum=None
-        
+        sum=0
         for j in range(len(data)):
-            if data[j]["indent"]==i:
-                
+            
+            if data[j]["indent"]==i: 
+               
                 index=j 
-                frappe.errprint(f"{index}-index-{i}-i")
-                # sum=0
-                
                 for k in range(j+1,len(data)):
-                    if(i==1):
-                        frappe.errprint(data[k]["indent"])
+                    
                     if data[k]["indent"]==i+1:
                         sum= (sum or 0) + (data[k].get("available_stock") or 0)
-                        if(i==1):
-                            frappe.errprint(f'{data[k]["indent"]}-{j+1}-{index}-{sum}-i-{i}')
-                        
-                       
-                       
+                        data[index]["available_stock"]=sum
                     elif(data[k]["indent"]==i):
+                        
                         if(sum):
+                           
                             data[index]["available_stock"]=sum
-                        
-                        print(index,sum)
-                        sum=None
-                        if(i==1):
-                            frappe.errprint("-----------------------")
+                        sum=0
                         break
-                        
-                        
-                        
-            
-            
-        
+           
     
     return columns, data
