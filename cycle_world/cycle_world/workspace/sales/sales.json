@@ -34,10 +34,10 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "Gross Profit",
-   "link_to": "Gross Profit",
+   "label": "Day Book",
+   "link_to": "Day Book",
    "link_type": "Report",
-   "onboard": 1,
+   "onboard": 0,
    "type": "Link"
   },
   {
@@ -65,9 +65,26 @@
    "link_type": "Report",
    "onboard": 1,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Report",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Stock Summary",
+   "link_to": "TCW Franchise Stock Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-01-24 15:35:16.451801",
+ "modified": "2023-03-04 19:30:30.285484",
  "modified_by": "Administrator",
  "module": "Cycle World",
  "name": "Sales",
@@ -79,6 +96,12 @@
    "doc_view": "List",
    "label": "Sales Invoice",
    "link_to": "Sales Invoice",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Payment Entry",
+   "link_to": "Payment Entry",
    "type": "DocType"
   }
  ]

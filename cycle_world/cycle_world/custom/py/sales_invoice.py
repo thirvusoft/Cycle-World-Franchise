@@ -4,21 +4,29 @@ from cycle_world.cycle_world.custom.py.print_format import qrcode_as_png
 def validate(doc, event):
     set_qr_image(doc)
     itemised_tax, itemised_taxable_amount = get_itemised_tax_breakup_data(doc)
-    descriptions = []
-    final_taxes = {}
+    tax_rates = {}
     for i in itemised_tax:
-        taxes = list(itemised_tax[i].keys())
-        tax_rate = list(itemised_tax[i].values())[0]['tax_rate']
-        taxes = replace_in_list(taxes, 'Output Tax')
-        taxes = replace_in_list(taxes, 'Input Tax')
-        taxes = split_in_list(taxes, '@')
-        tax_list = [i+f' @ {tax_rate}' for i in taxes]
-        descriptions+=taxes
-        final_taxes = add_to_tax_list(final_taxes, tax_list, itemised_tax[i])
-    descriptions = list(set(descriptions))
-    doc.update({
-        'tax_table_print_format':list(final_taxes.values())
-    })
+        for j in itemised_tax[i]:
+            if(not f"{j}{itemised_tax[i][j]['tax_rate']}" in tax_rates):
+                tax_rates[f"{j}{itemised_tax[i][j]['tax_rate']}"] = [itemised_tax[i][j]['tax_rate'], itemised_tax[i][j]['tax_amount']]
+            else:
+                tax_rates[f"{j}{itemised_tax[i][j]['tax_rate']}"][1] += itemised_tax[i][j]['tax_amount']
+    frappe.errprint(tax_rates)
+    # descriptions = []
+    # final_taxes = {}
+    # for i in itemised_tax:
+    #     taxes = list(itemised_tax[i].keys())
+    #     tax_rate = list(itemised_tax[i].values())[0]['tax_rate']
+    #     taxes = replace_in_list(taxes, 'Output Tax')
+    #     taxes = replace_in_list(taxes, 'Input Tax')
+    #     taxes = split_in_list(taxes, '@')
+    #     tax_list = [i+f' @ {tax_rate}' for i in taxes]
+    #     descriptions+=taxes
+    #     final_taxes = add_to_tax_list(final_taxes, tax_list, itemised_tax[i])
+    # descriptions = list(set(descriptions))
+    # doc.update({
+    #     'tax_table_print_format':list(final_taxes.values())
+    # })
 
 def replace_in_list(lst, from_word='', to_word=''):
     new_lst = []

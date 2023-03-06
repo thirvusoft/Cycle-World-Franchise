@@ -2,7 +2,16 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Cycle World Stock Report"] = {
+frappe.query_reports["TCW Franchise Stock Report"] = {
+	"filters": [
+
+	]
+};
+// Copyright (c) 2023, Thirvusoft and contributors
+// For license information, please see license.txt
+/* eslint-disable */
+
+frappe.query_reports["TCW Franchise Stock Report"] = {
 	"filters": [
 		// {
 		// "fieldname":"filter",
