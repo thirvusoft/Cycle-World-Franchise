@@ -1,6 +1,6 @@
-frappe.form.link_formatters['Item'] = function(value, doc) {
-	return doc.item_name || doc.item_code
-}
+// frappe.form.link_formatters['Item'] = function(value, doc) {
+// 	return doc.item_name || doc.item_code
+// }
 
 
 frappe.provide('frappe.ui.form');
