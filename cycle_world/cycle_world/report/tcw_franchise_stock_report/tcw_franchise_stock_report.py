@@ -16,55 +16,25 @@ def execute(filters=None):
             "label": ("Available Stock"),
             "fieldname": "available_stock",
             "fieldtype": "Float",
-            "width": 150
+            "width": 200
         },
-        {
-            "label": ("Available Stock Value"),
-            "fieldname": "available_stock_value",
-            "fieldtype": "Float",
-            "width": 150
-        },
+        # {
+        #     "label": ("Available Stock Value"),
+        #     "fieldname": "available_stock_value",
+        #     "fieldtype": "Float",
+        #     "width": 150
+        # },
          {
-            "label": ("Buying Price"),
+            "label": ("Franchise Buying Price"),
             "fieldname": "st_buying_cost",
             "fieldtype": "Currency",
-            "width": 150
+            "width": 200
         },
-        {
-            "label": ("Selling Price"),
-            "fieldname": "selling_price",
-            "fieldtype": "Currency",
-            "width": 150
-        },
-        {
+          {
             "label": ("MRP"),
             "fieldname": "mrp",
             "fieldtype": "Currency",
-            "width": 150
-        },
-        {
-            "label": ("Margin"),
-            "fieldname": "margin",
-            "fieldtype": "Percent",
-            "width": 150
-        },
-        {
-            "label": ("Transportation Cost"),
-            "fieldname": "transportation_cost",
-            "fieldtype": "Currency",
-            "width": 150
-        },
-        {
-            "label": ("Labour Cost"),
-            "fieldname": "labour_cost",
-            "fieldtype": "Currency",
-            "width": 150
-        },
-        {
-            "label": ("Other Cost"),
-            "fieldname": "other_cost",
-            "fieldtype": "Currency",
-            "width": 150
+            "width": 200
         },
       
     ]
@@ -122,9 +92,7 @@ def execute(filters=None):
                         
                         for k in sub1:
                        
-                            items = frappe.db.get_all('Item', filters={'item_group':k}, 
-                                                      fields=['name as item', 'standard_rate', 'mrp','transportation_cost', 'other_costs', 'shipping_cost', 
-                                                              'ts_margin', 'standard_buying_cost'])
+                            items = frappe.db.get_all('Item', filters={'item_group':k}, fields=['name as item', 'standard_rate', 'mrp',])
                          
                             item_group_row = {
                         "item_group": f"""<b>{k}</b>""",
@@ -146,12 +114,7 @@ def execute(filters=None):
                                     "item_group": v["item"],
                                     "item":"",
                                     "available_stock":bin_list[0]["actual_qty"],
-                                    "st_buying_cost":v["standard_buying_cost"],
-                                    "selling_price":v["standard_rate"],
-                                    "labour_cost":v['shipping_cost'],
-                                    "margin":v['ts_margin'],
-                                    "other_cost":v['other_costs'],
-                                    "transportation_cost":v['transportation_cost'],
+                                    "st_buying_cost":v["standard_rate"],
                                     "available_stock_value":bin_list[0]["stock_value"],
                                     "mrp":v["mrp"],
                                     
@@ -348,6 +311,7 @@ def execute(filters=None):
         index=0
         sum=0
         sum1=0
+        
         for j in range(len(data)):
             
             if data[j]["indent"]==i: 
