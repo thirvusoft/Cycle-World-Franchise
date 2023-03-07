@@ -5,13 +5,27 @@ def validate(doc, event):
     set_qr_image(doc)
     itemised_tax, itemised_taxable_amount = get_itemised_tax_breakup_data(doc)
     tax_rates = {}
+    originals = {}
     for i in itemised_tax:
         for j in itemised_tax[i]:
             if(not f"{j}{itemised_tax[i][j]['tax_rate']}" in tax_rates):
+                originals[f"{j}{itemised_tax[i][j]['tax_rate']}"] = j
                 tax_rates[f"{j}{itemised_tax[i][j]['tax_rate']}"] = [itemised_tax[i][j]['tax_rate'], itemised_tax[i][j]['tax_amount']]
             else:
                 tax_rates[f"{j}{itemised_tax[i][j]['tax_rate']}"][1] += itemised_tax[i][j]['tax_amount']
-    frappe.errprint(tax_rates)
+    descriptions = []
+    for i in tax_rates:
+        desc = i
+        if('sgst' in i.lower()):
+            desc='SGST'
+        elif('cgst' in i.lower()):
+            desc='CGST'
+        else:
+            desc = originals[desc]
+        descriptions.append({'description':desc, 'percent':tax_rates[i][0], 'tax_amount':tax_rates[i][1]})
+    doc.update({
+        'tax_table_print_format':descriptions
+    })
     # descriptions = []
     # final_taxes = {}
     # for i in itemised_tax:
