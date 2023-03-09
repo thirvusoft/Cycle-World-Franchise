@@ -69,13 +69,13 @@
    "hidden": 0,
    "is_query_report": 1,
    "label": "Stock Summary",
-   "link_to": "TCW Franchise Stock Report",
+   "link_to": "Stock Report",
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2023-03-07 13:13:37.424308",
+ "modified": "2023-03-07 15:44:09.704177",
  "modified_by": "Administrator",
  "module": "Cycle World",
  "name": "Sales",
@@ -83,6 +83,12 @@
  "pin_to_bottom": 0,
  "pin_to_top": 0,
  "shortcuts": [
+  {
+   "doc_view": "List",
+   "label": "Sales Order",
+   "link_to": "Sales Order",
+   "type": "DocType"
+  },
   {
    "doc_view": "List",
    "label": "Sales Invoice",

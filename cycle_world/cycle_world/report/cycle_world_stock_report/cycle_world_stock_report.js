@@ -17,16 +17,16 @@ frappe.query_reports["Cycle World Stock Report"] = {
 			"label": ("BICYCLE HIERARCHY"),
 			"fieldtype": "Select",
 			"options": "\nWHEEL SIZE\nBrand",
-			"reqd": 1
-			// "default": "Completed"
+			"reqd": 1,
+			"default": "WHEEL SIZE"
 			},
 		{
 			"fieldname":"warehouse",
 			"label": ("Select Warehouse"),
 			"fieldtype": "Link",
 			"options": "Warehouse",
-			"reqd": 1
-			// "default": "Completed"
+			"reqd": 1,
+			"default": "Stores - TCW"
 			}
 	],
 	"initial_depth":0,
