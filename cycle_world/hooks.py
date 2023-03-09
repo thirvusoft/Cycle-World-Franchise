@@ -107,6 +107,7 @@ override_doctype_class = {
 doc_events = {
 	"Sales Invoice": {
 		"validate": "cycle_world.cycle_world.custom.py.sales_invoice.validate",
+        "autoname": "cycle_world.cycle_world.custom.py.sales_invoice.auto_name",
 	},
 	"User":{
 		'validate': 'cycle_world.cycle_world.user_permissions.user.validate'
