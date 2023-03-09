@@ -1,0 +1,46 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2023-03-08 15:50:20.810960",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "json": "{\"columns\":[{\"fieldtype\":\"Link\",\"options\":\"Customer\",\"label\":\"Customer\",\"fieldname\":\"customer\",\"id\":\"customer\",\"name\":\"Customer\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"fieldname\":\"customer_name\",\"field\":\"customer_name\",\"fieldtype\":\"Data\",\"label\":\"Full Name\",\"insert_after_index\":0,\"link_field\":\"customer\",\"doctype\":\"Customer\",\"width\":100,\"id\":\"customer_name\",\"name\":\"Full Name\",\"editable\":false,\"compareValue\":null},{\"fieldtype\":\"\",\"width\":150,\"label\":\"Customer Group\",\"fieldname\":\"customer_group\",\"id\":\"customer_group\",\"name\":\"Customer Group\",\"editable\":false,\"compareValue\":null},{\"label\":\"Address Line 1\",\"fieldname\":\"address_line_1\",\"id\":\"address_line_1\",\"name\":\"Address Line 1\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"Address Line 2\",\"fieldname\":\"address_line_2\",\"id\":\"address_line_2\",\"name\":\"Address Line 2\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"City\",\"fieldname\":\"city\",\"id\":\"city\",\"name\":\"City\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"State\",\"fieldname\":\"state\",\"id\":\"state\",\"name\":\"State\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"Postal Code\",\"fieldname\":\"postal_code\",\"id\":\"postal_code\",\"name\":\"Postal Code\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"Country\",\"fieldname\":\"country\",\"id\":\"country\",\"name\":\"Country\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"fieldtype\":\"Check\",\"label\":\"Is Primary Address\",\"fieldname\":\"is_primary_address\",\"id\":\"is_primary_address\",\"name\":\"Is Primary Address\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"First Name\",\"fieldname\":\"first_name\",\"id\":\"first_name\",\"name\":\"First Name\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"Last Name\",\"fieldname\":\"last_name\",\"id\":\"last_name\",\"name\":\"Last Name\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"Phone\",\"fieldname\":\"phone\",\"id\":\"phone\",\"name\":\"Phone\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"Mobile No\",\"fieldname\":\"mobile_no\",\"id\":\"mobile_no\",\"name\":\"Mobile No\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"label\":\"Email Id\",\"fieldname\":\"email_id\",\"id\":\"email_id\",\"name\":\"Email Id\",\"width\":null,\"editable\":false,\"compareValue\":null},{\"fieldtype\":\"Check\",\"label\":\"Is Primary Contact\",\"fieldname\":\"is_primary_contact\",\"id\":\"is_primary_contact\",\"name\":\"Is Primary Contact\",\"width\":null,\"editable\":false,\"compareValue\":null}]}",
+ "modified": "2023-03-08 15:51:17.840437",
+ "modified_by": "Administrator",
+ "module": "Cycle World",
+ "name": "Party Address And Contacts",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Address",
+ "reference_report": "Address And Contacts",
+ "report_name": "Party Address And Contacts",
+ "report_type": "Custom Report",
+ "roles": [
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Maintenance User"
+  },
+  {
+   "role": "Sales User"
+  },
+  {
+   "role": "Purchase User"
+  },
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Branch Admin"
+  },
+  {
+   "role": "HO Admin"
+  }
+ ]
+}
