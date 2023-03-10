@@ -115,6 +115,8 @@ def validate(doc, event=None):
 			doc.item_code = new_series
 	
 		return
+	if(doc.opening_stock):
+		doc.set_opening_stock()
 	if(doc.get('dont_save') or not frappe.db.exists('Item', doc.name)):return
 	doc.additional_cost = (doc.get('transportation_cost') or 0) + (doc.get('shipping_cost') or 0) + (doc.get('other_costs') or 0)
 	doc.standard_rate = float(doc.get('standard_buying_cost') or 0) + (
@@ -200,8 +202,11 @@ def get_link_options(doctype, txt, searchfield, start, page_len, filters):
 	)
 def autoname(doc, event):
 	template_ic = doc.variant_of
-	make_variant_item_code(template_ic, template_ic, doc, True)
-	doc.name = doc.item_name
+	if(doc.has_variants):
+		doc.name = doc.brand_name if doc.item_group in ['BICYCLES', 'E-BIKES'] else doc.item_group 
+	else:
+		make_variant_item_code(template_ic, template_ic, doc, True)
+		doc.name = doc.item_name
 
 @frappe.whitelist()
 def set_variant_name_for_manual_creation(doc):
@@ -318,7 +323,7 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 		from tabItem
 		where tabItem.docstatus < 2
 			and tabItem.disabled=0
-			and tabItem.has_variants=0
+			
 			and (tabItem.end_of_life > %(today)s or ifnull(tabItem.end_of_life, '0000-00-00')='0000-00-00')
 			and ({scond} or tabItem.item_code IN (select parent from `tabItem Barcode` where barcode LIKE %(txt)s)
 				{description_cond})
@@ -342,7 +347,7 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 			"start": start,
 			"page_len": page_len,
 		},
-		as_dict=as_dict,
+		as_dict=as_dict, debug=1
 	)
 
 def item_price_update(doc,action):

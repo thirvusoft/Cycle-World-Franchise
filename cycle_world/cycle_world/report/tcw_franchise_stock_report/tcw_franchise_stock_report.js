@@ -35,7 +35,7 @@ frappe.query_reports["TCW Franchise Stock Report"] = {
 			"fieldtype": "Link",
 			"options": "Warehouse",
 			"reqd": 1,
-			"default": "Stores - TCW"
+			"default": frappe.defaults.get_user_permissions()['Warehouse']?frappe.defaults.get_user_permissions()['Warehouse'][0].doc:''
 			}
 	],
 	"initial_depth":0,

@@ -32,7 +32,7 @@ def add_user_permission(
         return doc.name
 
 def validate(doc, event=None):
-    if(not doc.get('company')):
+    if(not doc.get('company') or doc.is_new()):
         return
     is_parent_company = frappe.db.get_value('Company', doc.company, 'is_group')
     if not is_parent_company:

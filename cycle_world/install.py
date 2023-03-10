@@ -16,6 +16,23 @@ def create_property_setter():
 
 def make_custom_fields():
     custom_field = {
+        'Selling Settings':[
+            {
+            'fieldname':'validate_selling_price_list',
+            'fieldtype':'Check',
+            'insert_after':'selling_price_list',
+            'label':'Validate Selling Price List',
+            },
+            {
+            'fieldname':'price_list',
+            'fieldtype':'Link',
+            'options':'Price List',
+            'insert_after':'validate_selling_price_list',
+            'label':'Price List to Validate',
+            'depends_on':'validate_selling_price_list',
+            'mandatory_depends_on':'validate_selling_price_list'
+            },
+        ],
         'Purchase Invoice':[
             {
             'fieldname':'land_cst_sc_brk',

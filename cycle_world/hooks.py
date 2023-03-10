@@ -38,7 +38,8 @@ doctype_js = {
 			"Purchase Receipt" : "cycle_world/custom/js/purchase_receipt.js",
 			"Item Attribute" : "cycle_world/custom/js/item_attribute.js",
 			"Company":'cycle_world/custom/js/company.js',
-            "Stock Reconciliation":"cycle_world/item_rename/stock_reconciliation.js"
+            "Stock Reconciliation":"cycle_world/item_rename/stock_reconciliation.js",
+            "Branch":"cycle_world/custom/js/branch.js"
 			}
 doctype_list_js = {"Item" : "cycle_world/custom/js/item_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -110,7 +111,8 @@ doc_events = {
         "autoname": "cycle_world.cycle_world.custom.py.sales_invoice.auto_name",
 	},
 	"User":{
-		'validate': 'cycle_world.cycle_world.user_permissions.user.validate'
+		'validate': 'cycle_world.cycle_world.user_permissions.user.validate',
+        'after_insert': 'cycle_world.cycle_world.user_permissions.user.validate',
 	},
 	"Branch":{
 		'validate':'cycle_world.cycle_world.user_permissions.branch.validate'

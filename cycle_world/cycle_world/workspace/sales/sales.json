@@ -75,7 +75,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-03-07 15:44:09.704177",
+ "modified": "2023-03-10 18:48:54.999483",
  "modified_by": "Administrator",
  "module": "Cycle World",
  "name": "Sales",
@@ -100,6 +100,12 @@
    "label": "Payment Entry",
    "link_to": "Payment Entry",
    "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Thirvu Retail(POS)",
+   "link_to": "posapp",
+   "type": "Page"
   }
  ]
 }

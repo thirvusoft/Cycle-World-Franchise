@@ -184,6 +184,13 @@ def get_data(filters={}):
                                         "indent" : 1}
                         data.append(item_group_row)
                         for v in items:
+                            bin_list=frappe.db.sql(
+                                            """select actual_qty,stock_value from `tabBin`
+                                            where item_code = %s and warehouse = %s
+                                            limit 1""",
+                                            ( v["item"], filters.get("warehouse")),
+                                        as_dict=1
+                                        )
                             item_group_row = {
                                             "item_group": v["item"],
                                             "item":"",
@@ -194,7 +201,7 @@ def get_data(filters={}):
                                             "margin":v['ts_margin'],
                                             "other_cost":v['other_costs'],
                                             "transportation_cost":v['transportation_cost'],
-                                            "available_stock_value":bin_list[0]["stock_value"],
+                                            "available_stock_value": bin_list[0]["stock_value"] if len(bin_list) else 0,
                                             "indent" : 2,
                                             }
                             data.append(item_group_row)

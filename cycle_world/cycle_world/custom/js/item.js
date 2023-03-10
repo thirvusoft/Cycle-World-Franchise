@@ -1,9 +1,13 @@
 frappe.ui.form.on('Item',{
 	setup(frm){
-		frm.set_query('variant_of', {
-			filters: {
-				'has_variants':1
+		frm.set_query('variant_of', function(){
+			return {
+				query:"erpnext.controllers.queries.item_query",
+				filters: {
+					'has_variants':1,
+				}
 			}
+			
 		});
 		var attr_html = frm.$wrapper.find('div[data-fieldname="attribute_html"]')[0]
 		attr_html.innerHTML = ''
@@ -106,10 +110,17 @@ frappe.ui.form.on('Item',{
 		}
 	},
     brand_name: function(frm){
-		// frm.set_value('item_code', frm.doc.brand_name)
-		// frm.set_value('item_name', frm.doc.brand_name)
+		frm.set_value('item_code', frm.doc.brand_name)
+		frm.set_value('item_name', frm.doc.brand_name)
 		frm.set_value('brand', frm.doc.brand_name)
 		// frm.set_value('variant_of', frm.doc.brand_name)
+	},
+	item_group: function(frm){
+		if(frm.doc.item_group != "BICYCLES" && frm.doc.item_group !='E-BIKES'){
+			frm.set_value('item_name', frm.doc.item_group)
+			frm.set_value('item_code', frm.doc.item_group)
+		}
+		
 	},
 	standard_buying_cost(frm){
 		item_price(frm)

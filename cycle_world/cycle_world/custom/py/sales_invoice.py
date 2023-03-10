@@ -3,8 +3,11 @@ from erpnext.controllers.taxes_and_totals import get_itemised_tax_breakup_data
 from cycle_world.cycle_world.custom.py.print_format import qrcode_as_png
 from frappe.model.naming import make_autoname
 
-
+@frappe.whitelist()
+def get_invoice_series_options():
+    return frappe.get_meta('Sales Invoice').get_field('naming_series').options
 def validate(doc, event):
+    validate_selling_price_list(doc)
     set_qr_image(doc)
     itemised_tax, itemised_taxable_amount = get_itemised_tax_breakup_data(doc)
     tax_rates = {}
@@ -47,3 +50,14 @@ def set_qr_image(doc):
 def auto_name(self, event=None):
     if(self.sales_type=='Online Sales' and self.online_series):
         self.name = make_autoname(self.online_series, doc=self)
+
+def validate_selling_price_list(doc):
+    if frappe.db.get_single_value('Selling Settings', 'validate_selling_price_list'):
+        price_list = frappe.db.get_single_value('Selling Settings', 'price_list')
+        for i in doc.items:
+            rate = frappe.db.get_value('Item Price', {'item_code':i.item_code}, 'price_list_rate', order_by = '`valid_from` desc')
+            if(i.base_net_rate < rate):
+                frappe.throw(
+					f"""<b>Row #{i.idx}:</b> Selling rate for item <b>{i.item_code}</b> is lower than its {price_list} Price
+                      should be atleast <b>{rate}</b>."""
+				)
