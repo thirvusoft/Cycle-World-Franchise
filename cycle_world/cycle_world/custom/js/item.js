@@ -104,10 +104,10 @@ frappe.ui.form.on('Item',{
 		frm.trigger('setup')	
 	},
 	validate(frm){
-		if(frm.doc.has_variants){
-			frm.set_value('item_code', frm.doc.brand_name)
-			frm.set_value('item_name', frm.doc.brand_name)
-		}
+		// if(frm.doc.has_variants){
+		// 	frm.set_value('item_code', frm.doc.brand_name)
+		// 	frm.set_value('item_name', frm.doc.brand_name)
+		// }
 	},
     brand_name: function(frm){
 		frm.set_value('item_code', frm.doc.brand_name)

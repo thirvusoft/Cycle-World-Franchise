@@ -50,14 +50,16 @@ def set_qr_image(doc):
 def auto_name(self, event=None):
     if(self.sales_type=='Online Sales' and self.online_series):
         self.name = make_autoname(self.online_series, doc=self)
+    elif(self.branch_series):
+        self.name = make_autoname(self.branch_series, doc=self)
 
 def validate_selling_price_list(doc):
     if frappe.db.get_single_value('Selling Settings', 'validate_selling_price_list'):
         price_list = frappe.db.get_single_value('Selling Settings', 'price_list')
         for i in doc.items:
             rate = frappe.db.get_value('Item Price', {'item_code':i.item_code}, 'price_list_rate', order_by = '`valid_from` desc')
-            if(i.base_net_rate < rate):
+            if(i.rate < rate):
                 frappe.throw(
-					f"""<b>Row #{i.idx}:</b> Selling rate for item <b>{i.item_code}</b> is lower than its {price_list} Price
+					f"""<b>Row #{i.idx}:</b> Selling rate ({i.rate}) for item <b>{i.item_code}</b> is lower than its {price_list} Price
                       should be atleast <b>{rate}</b>."""
 				)
