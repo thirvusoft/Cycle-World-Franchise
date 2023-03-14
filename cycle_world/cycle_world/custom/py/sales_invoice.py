@@ -57,9 +57,10 @@ def validate_selling_price_list(doc):
     if frappe.db.get_single_value('Selling Settings', 'validate_selling_price_list'):
         price_list = frappe.db.get_single_value('Selling Settings', 'price_list')
         for i in doc.items:
-            rate = frappe.db.get_value('Item Price', {'item_code':i.item_code}, 'price_list_rate', order_by = '`valid_from` desc')
-            if(i.rate < rate):
-                frappe.throw(
-					f"""<b>Row #{i.idx}:</b> Selling rate ({i.rate}) for item <b>{i.item_code}</b> is lower than its {price_list} Price
-                      should be atleast <b>{rate}</b>."""
-				)
+            rate = frappe.db.get_value('Item Price', {'item_code':i.item_code, 'price_list':price_list}, 'price_list_rate', order_by = '`valid_from` desc')
+            if(rate and i.rate):
+                if(i.rate < rate or 0):
+                    frappe.throw(
+                        f"""<b>Row #{i.idx}:</b> Selling rate ({i.rate}) for item <b>{i.item_code}</b> is lower than its {price_list} Price
+                        should be atleast <b>{rate}</b>."""
+                    )

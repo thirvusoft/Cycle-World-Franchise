@@ -68,26 +68,21 @@ def make_variant_item_code(template_item_code, template_item_name, variant, item
 
 
 def set_item_tax_rate():
-	for i in frappe.get_all('Item Tax', pluck='name', filters={'parenttype':'Item'}):
-		frappe.delete_doc('Item Tax', i)
 	temp = frappe.db.get_all('Item', filters={'has_variants':1}, pluck='name')
-	for i in temp:
-		pp = frappe.get_doc({
-			'doctype': "Item Tax",
-			'item_tax_template': "GST 12% - PP",
-			'parent': i,
-			'parentfield': "taxes",
-			'parenttype': "Item",
-		})
-		cy = frappe.get_doc({
-			'doctype': "Item Tax",
-			'item_tax_template': "GST 12% - TCW",
-			'parent': i,
-			'parentfield': "taxes",
-			'parenttype': "Item",
-		})
-		pp.insert()
-		cy.insert()
+	tax = frappe.get_all('Item Tax', fields=['item_tax_template', 'parent'], filters={'parenttype':'Item', 'item_tax_template':['like', '%tcw%'], 'parent':['not in', temp]})
+	abbrs = frappe.db.get_all('Company', pluck='abbr')
+	for i in tax:
+		for j in abbrs:
+			if not frappe.db.exists('Item Tax', {'parent':i['parent'], 'item_tax_template':i['item_tax_template'].replace('TCW',j)}):
+				template = frappe.new_doc('Item Tax')
+				template.update({
+					"parenttype": "Item",
+					'parent':i['parent'],
+					'parentfield': "taxes",
+					'idx':(max(frappe.db.get_all('Item Tax', filters={'parent':i['parent']}, pluck='idx')) or 0) + 1,
+					'item_tax_template':i['item_tax_template'].replace('TCW',j)
+				})
+				template.save()
 
 def update_brand_in_item_attributes():
 	"""Update brand field in item attributes which name like 'Model' """

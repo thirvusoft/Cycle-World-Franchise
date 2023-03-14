@@ -13,7 +13,7 @@
  "is_standard": 1,
  "label": "Inventory",
  "links": [],
- "modified": "2023-03-06 10:27:15.000860",
+ "modified": "2023-03-13 13:35:45.071054",
  "modified_by": "Administrator",
  "module": "Cycle World Admin",
  "name": "Inventory",
@@ -67,6 +67,12 @@
    "doc_view": "List",
    "label": "Item Price",
    "link_to": "Item Price",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Product Bundle",
+   "link_to": "Product Bundle",
    "type": "DocType"
   },
   {
